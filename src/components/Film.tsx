@@ -3,7 +3,7 @@ import { prefersReducedMotion } from '../lib/motion'
 import { Eyebrow, SectionCta, SplitTitle } from './ui'
 
 /**
- * Vidéo de présentation (30 s), lue automatiquement sans le son et en boucle
+ * Vidéo de présentation (53 s), lue automatiquement sans le son et en boucle
  * dès qu'elle est visible, mise en pause hors de l'écran.
  * Rien n'est téléchargé tant qu'elle n'approche pas de l'écran (preload="none").
  * Version 720p sur mobile, 1080p sur ordinateur.
@@ -60,8 +60,8 @@ export function Film() {
     <section className="film" id="video" aria-labelledby="film-title">
       <div className="wrap">
         <div className="film-head">
-          <Eyebrow>En 30 secondes</Eyebrow>
-          <SplitTitle as="h2" className="title-sm" first="L’atelier." second="En 30 secondes." id="film-title" />
+          <Eyebrow>Vidéo de présentation</Eyebrow>
+          <SplitTitle as="h2" className="title-sm" first="L’atelier." second="En une minute." id="film-title" />
         </div>
         <div className="film-frame" data-reveal="">
           <video
@@ -70,14 +70,14 @@ export function Film() {
             loop
             playsInline
             preload="none"
-            poster="/video/mjform-atelier-poster.webp"
+            poster="/video/mjform-presentation-poster.webp"
             aria-label="Vidéo de présentation des ateliers IA MJ FORM à Sète"
           >
-            <source src="/video/mjform-atelier-720.mp4" type="video/mp4" media="(max-width: 900px)" />
-            <source src="/video/mjform-atelier-1080.mp4" type="video/mp4" />
+            <source src="/video/mjform-presentation-720.mp4" type="video/mp4" media="(max-width: 900px)" />
+            <source src="/video/mjform-presentation-1080.mp4" type="video/mp4" />
           </video>
           {manual && !started ? (
-            <button type="button" className="film-play" onClick={playManually} aria-label="Lire la vidéo de présentation, 30 secondes">
+            <button type="button" className="film-play" onClick={playManually} aria-label="Lire la vidéo de présentation, 53 secondes">
               <span className="film-pill">
                 <span className="film-ic" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="14" height="14">
@@ -85,7 +85,7 @@ export function Film() {
                   </svg>
                 </span>
                 Voir la vidéo
-                <span className="film-dur">0:30</span>
+                <span className="film-dur">0:53</span>
               </span>
             </button>
           ) : (

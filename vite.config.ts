@@ -61,13 +61,13 @@ function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
   }
   const video = {
     '@type': 'VideoObject',
-    name: 'MJ FORM — Atelier IA à Sète, en 30 secondes',
+    name: 'MJ FORM — L’atelier IA pour les commerçants de Sète, en une minute',
     description:
-      'Avis Google, publications, devis : ce que vous faites en 3 heures avec votre téléphone lors d’un atelier IA MJ FORM à Sète.',
-    thumbnailUrl: `${siteUrl}/video/mjform-atelier-poster.jpg`,
-    contentUrl: `${siteUrl}/video/mjform-atelier-1080.mp4`,
+      'Pour qui, comment ça se passe et ce que vous emportez : avis Google, publications, devis automatiques, en 3 heures avec votre téléphone lors d’un atelier IA MJ FORM à Sète.',
+    thumbnailUrl: `${siteUrl}/video/mjform-presentation-poster.jpg`,
+    contentUrl: `${siteUrl}/video/mjform-presentation-1080.mp4`,
     uploadDate: '2026-11-16',
-    duration: 'PT30S',
+    duration: 'PT53S',
     inLanguage: 'fr',
     publisher: { '@id': `${siteUrl}/#mjform` },
   }
