@@ -1,10 +1,13 @@
-import { defineConfig, loadEnv, type Plugin } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 import { ATELIERS } from './src/data/ateliers.ts'
 import { FAQ } from './src/data/faq.ts'
+import { CONTACT, SITE_URL } from './src/config.ts'
 
-function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
+function jsonLd(siteUrl: string): Plugin {
+  const phone = '+33611718368'
+  const email = CONTACT.email
   const org = {
     '@type': ['LocalBusiness', 'EducationalOrganization'],
     '@id': `${siteUrl}/#mjform`,
@@ -12,11 +15,12 @@ function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
     description:
       'Ateliers IA pour commerçants et entrepreneurs du Bassin de Thau : ChatGPT, Claude, avis Google, réseaux sociaux, devis et agents IA.',
     url: siteUrl,
-    ...(phone ? { telephone: phone } : {}),
-    ...(email ? { email } : {}),
-    priceRange: '129 € – 990 €',
+    telephone: phone,
+    email,
+    priceRange: '49 € – 990 €',
     address: {
       '@type': 'PostalAddress',
+      streetAddress: '54 rue Marceau',
       addressLocality: 'Sète',
       postalCode: '34200',
       addressRegion: 'Occitanie',
@@ -88,11 +92,49 @@ function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
   }
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
-  const siteUrl = (env.VITE_SITE_URL || 'https://mjform.fr').replace(/\/$/, '')
+/**
+ * En développement (npm run dev), sert les fonctions de api/ comme le fera Vercel en production.
+ * Nécessite STRIPE_SECRET_KEY et les STRIPE_PRICE_* dans l'environnement (ou un fichier .env.local).
+ */
+function devApi(): Plugin {
   return {
-    plugins: [react(), jsonLd(siteUrl, env.VITE_CONTACT_PHONE || '', env.VITE_CONTACT_EMAIL || '')],
+    name: 'mjform-dev-api',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/api', async (req, res, next) => {
+        const name = (req.url ?? '').split('?')[0].replace(/^\//, '')
+        if (!/^[a-z-]+$/.test(name)) return next()
+        try {
+          const mod = await server.ssrLoadModule(`/api/${name}.ts`)
+          const handler = mod[req.method ?? 'GET']
+          if (typeof handler !== 'function') {
+            res.statusCode = 405
+            return res.end()
+          }
+          const chunks: Buffer[] = []
+          for await (const c of req) chunks.push(c as Buffer)
+          const url = `http://${req.headers.host}${req.originalUrl ?? req.url}`
+          const request = new Request(url, {
+            method: req.method,
+            headers: req.headers as Record<string, string>,
+            body: chunks.length ? Buffer.concat(chunks) : undefined,
+          })
+          const response: Response = await handler(request)
+          res.statusCode = response.status
+          response.headers.forEach((v, k) => res.setHeader(k, v))
+          res.end(Buffer.from(await response.arrayBuffer()))
+        } catch (e) {
+          next(e)
+        }
+      })
+    },
+  }
+}
+
+export default defineConfig(() => {
+  const siteUrl = SITE_URL
+  return {
+    plugins: [react(), jsonLd(siteUrl), devApi()],
     build: {
       target: 'es2020',
       rollupOptions: {

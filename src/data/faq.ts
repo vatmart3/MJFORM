@@ -25,13 +25,14 @@ export const FAQ: Array<{ q: string; a: string[] }> = [
     q: 'Et si je dois annuler ?',
     a: [
       'Annulation 7 jours ou plus avant l’atelier : vous êtes remboursé intégralement.',
-      'Moins de 7 jours avant : nous reportons votre place sur une autre date, sans frais.',
+      'Moins de 7 jours avant : votre place est reportée gratuitement sur une session des 3 mois suivants.',
+      'Absence non signalée : l’atelier reste dû.',
     ],
   },
   {
     q: 'Peut-on financer l’atelier ?',
     a: [
-      'Les ateliers ne sont pas proposés via le CPF. Vous recevez une facture au nom de votre entreprise : c’est une dépense professionnelle.',
+      'Les ateliers ne sont pas proposés via le CPF. Vous recevez une facture au nom de votre entreprise : c’est une dépense professionnelle. Prix nets, TVA non applicable (art. 293 B du CGI).',
       'Pour une éventuelle prise en charge par un organisme de financement, écrivez-nous avant de réserver. Nous vous dirons franchement ce qui est possible dans votre cas.',
     ],
   },

@@ -1,23 +1,26 @@
-// Coordonnées et réglages publics. Les valeurs viennent des variables d'environnement
-// (voir .env.example). Une valeur vide n'est jamais remplacée par une valeur inventée.
+// Coordonnées et réglages publics.
+import { PILOT_SESSION_ID } from './data/sessions'
 
-const clean = (v?: string) => (v ?? '').trim()
-
-export const SITE_URL = clean(import.meta.env.VITE_SITE_URL) || 'https://mjform.fr'
+export const SITE_URL = 'https://mjform.fr'
 
 export const CONTACT = {
-  phone: clean(import.meta.env.VITE_CONTACT_PHONE),
-  email: clean(import.meta.env.VITE_CONTACT_EMAIL),
+  phone: '06 11 71 83 68',
+  tel: 'tel:+33611718368',
+  whatsapp: 'https://wa.me/33611718368',
+  email: 'jeremyvatuonepro@gmail.com',
 }
 
-export const telHref = (phone: string) => `tel:${phone.replace(/[^+\d]/g, '')}`
-
+/** Session de lancement : l'atelier spécial fêtes (pilote). */
 export const LAUNCH = {
   dateLabel: 'Vendredi 4 décembre',
-  atelierId: 'ia-comptoir',
+  atelierId: 'fetes',
+  sessionId: PILOT_SESSION_ID,
   price: 49,
-  regularPrice: 149,
+  laterPrice: 149,
   capacity: 8,
 }
 
 export const GROUP_SIZE = 8
+
+/** Section « Ils en parlent » : à passer à true dès qu'il y a de vrais avis (src/components/Reviews.tsx). */
+export const SHOW_REVIEWS = false

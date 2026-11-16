@@ -1,8 +1,10 @@
 // Catalogue MJ FORM — source unique pour le comparateur, le configurateur,
-// le JSON-LD et la fonction de paiement (supabase/functions/create-checkout).
-// Les prix sont en euros TTC. Les prix barrés sont des prix réels (somme des ateliers).
+// le JSON-LD et les fonctions de paiement (api/).
+// Prix nets en euros : TVA non applicable, art. 293 B du CGI.
+// Les prix barrés sont des prix réels (somme des ateliers du pack).
 
-export type LevelId = 'n1' | 'n2'
+/** 'special' : atelier ponctuel (pilote), proposé en tête de la réservation mais hors comparateur. */
+export type LevelId = 'n1' | 'n2' | 'special'
 
 export interface Atelier {
   id: string
@@ -17,6 +19,8 @@ export interface Atelier {
   pitch: string
   takeaways: string[]
   pack?: boolean
+  /** Mention affichée à côté du prix (ex. prix de lancement) */
+  priceNote?: string
 }
 
 export interface Level {
@@ -42,6 +46,21 @@ export const LEVELS: Level[] = [
 ]
 
 export const ATELIERS: Atelier[] = [
+  {
+    id: 'fetes',
+    level: 'special',
+    name: 'Atelier spécial fêtes',
+    duration: '3 h',
+    isoDuration: 'PT3H',
+    price: 49,
+    priceNote: 'prix de lancement (ensuite 149 €)',
+    pitch: 'Préparez tous vos posts de fin d’année en 3 h.',
+    takeaways: [
+      'Vos publications de décembre et du Nouvel An, rédigées et illustrées',
+      'Votre calendrier de publication jusqu’au 1er janvier',
+      'Vos horaires de fêtes à jour sur Google',
+    ],
+  },
   {
     id: 'ia-comptoir',
     level: 'n1',
@@ -181,6 +200,9 @@ export const ATELIERS: Atelier[] = [
 ]
 
 export const ateliersOf = (level: LevelId) => ATELIERS.filter((a) => a.level === level)
+/** Ateliers du catalogue régulier (niveaux 1 et 2, packs compris). */
+export const regularAteliers = () => ATELIERS.filter((a) => a.level !== 'special')
+export const SPECIAL = ATELIERS.find((a) => a.level === 'special')!
 export const atelierById = (id: string) => ATELIERS.find((a) => a.id === id)
 
 export const formatPrice = (n: number) =>

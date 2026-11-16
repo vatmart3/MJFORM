@@ -32,6 +32,8 @@ Promise.all([fontsReady.then(() => setProgress(0.8)), pageLoaded])
     setProgress(1)
     setTimeout(() => {
       loader?.classList.add('done')
+      ;(window as Window & { mjformReady?: boolean }).mjformReady = true
+      window.dispatchEvent(new Event('mjform:ready'))
       setTimeout(() => loader?.remove(), 400)
     }, 250)
   })

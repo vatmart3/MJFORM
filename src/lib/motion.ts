@@ -7,16 +7,16 @@ export const prefersReducedMotion = () =>
   isBrowser && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /** Saut vers une ancre (défilement natif du navigateur). */
-export function scrollToTarget(target: string | HTMLElement, offset = -64) {
+export function scrollToTarget(target: string | HTMLElement, offset = -64, instant = false) {
   if (!isBrowser) return
   const el = typeof target === 'string' ? document.querySelector<HTMLElement>(target) : target
   if (!el) return
-  scrollToY(el.getBoundingClientRect().top + window.scrollY + offset)
+  scrollToY(el.getBoundingClientRect().top + window.scrollY + offset, instant)
 }
 
-export function scrollToY(y: number) {
+export function scrollToY(y: number, instant = false) {
   if (!isBrowser) return
-  window.scrollTo({ top: y, behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+  window.scrollTo({ top: y, behavior: instant || prefersReducedMotion() ? 'auto' : 'smooth' })
 }
 
 /**

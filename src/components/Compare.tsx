@@ -109,7 +109,7 @@ export function Compare() {
         </div>
 
         <p className="center muted" style={{ fontSize: 14, marginTop: 32 }} data-reveal="">
-          Prix TTC par personne. Les {ATELIERS.filter((a) => a.pack).length} packs regroupent les ateliers de leur niveau ; le prix
+          Prix nets · TVA non applicable, art. 293 B du CGI. Par personne. Les {ATELIERS.filter((a) => a.pack).length} packs regroupent les ateliers de leur niveau ; le prix
           barré est la somme des ateliers achetés un par un.
         </p>
         <SectionCta secondary={{ href: '#temps', label: 'Calculer le temps gagné' }} />

@@ -42,7 +42,7 @@ function StoryProgress({ active, onPick }: { active: number; onPick: (i: number)
           type="button"
           role="tab"
           aria-selected={active === i}
-          aria-label={`${c.first} ${c.second}`}
+          title={`${c.first} ${c.second}`}
           className={`seg${active === i ? ' on' : ''}`}
           onClick={() => onPick(i)}
         >

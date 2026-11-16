@@ -15,6 +15,7 @@ import { Steps } from './components/Steps'
 import { StickyBook } from './components/StickyBook'
 import { Story } from './components/story/Story'
 import { initReveals } from './lib/motion'
+import { SHOW_REVIEWS } from './config'
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null)
@@ -40,7 +41,7 @@ export default function App() {
         <Calculator />
         <Steps />
         <Groups />
-        <Reviews />
+        {SHOW_REVIEWS ? <Reviews /> : null}
         <Configurator />
         <Faq />
         <FinalCta />

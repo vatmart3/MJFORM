@@ -8,7 +8,7 @@
     <link rel="canonical" href="%SITE_URL%/merci/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="robots" content="noindex" />
-    <script type="module" src="/src/page.ts"></script>
+    <script type="module" src="/src/merci.ts"></script>
   </head>
   <body>
     <header class="nav scrolled">
@@ -18,8 +18,16 @@
       <div class="wrap">
         <p class="eyebrow">Réservation</p>
         <h1>C’est réservé.<br /><span style="color: var(--ink-2)">À très vite.</span></h1>
-        <p class="lead">Votre paiement est confirmé. Vous recevez dans quelques minutes un e-mail avec votre reçu, l’adresse exacte à Sète et ce qu’il faut apporter.</p>
-        <p>Pensez simplement à venir avec votre téléphone chargé et les accès à vos comptes. Le café est offert.</p>
+        <p class="lead">Votre paiement est confirmé. Votre reçu arrive par e-mail dans quelques minutes.</p>
+        <dl class="recap" id="recap">
+          <div data-field="atelier-row" hidden><dt>Atelier</dt><dd data-field="atelier"></dd></div>
+          <div data-field="date-row" hidden><dt>Date</dt><dd data-field="date"></dd></div>
+          <div><dt>Adresse</dt><dd><a href="https://www.google.com/maps/search/?api=1&amp;query=54+rue+Marceau+34200+S%C3%A8te" target="_blank" rel="noopener">54 rue Marceau, 34200 Sète</a></dd></div>
+          <div data-field="amount-row" hidden><dt>Montant réglé</dt><dd data-field="amount"></dd></div>
+        </dl>
+        <p data-field="pack-note" hidden>Les dates des ateliers suivants de votre pack sont fixées ensemble : nous vous appelons dans la semaine.</p>
+        <p>Venez avec votre téléphone chargé et les accès à vos comptes (Google, Instagram, Facebook…). Le café est offert.</p>
+        <p>Une question ? <a href="tel:+33611718368">06 11 71 83 68</a> · <a href="mailto:jeremyvatuonepro@gmail.com">jeremyvatuonepro@gmail.com</a></p>
         <div class="actions"><a class="btn btn-primary" href="/">Retour à l’accueil</a><a class="btn btn-secondary" href="/#faq">Questions fréquentes</a></div>
       </div>
     </main>

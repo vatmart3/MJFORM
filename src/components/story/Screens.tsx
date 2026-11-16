@@ -7,7 +7,7 @@ import { useActiveScene, useSceneStep } from '../../lib/store'
 
 const REVIEWS: Array<{ i: string; s: number; t: string; r: string; d: string }> = [
   { i: 'A', s: 5, d: 'il y a 2 j', t: 'Les moules étaient parfaites, service rapide.', r: 'Merci ! Elles arrivent de l’étang de Thau le matin même. Au plaisir.' },
-  { i: 'L', s: 4, d: 'il y a 3 j', t: 'Très bon, un peu d’attente le samedi.', r: 'Merci pour votre retour. Le samedi, réservez : on vous garde la table.' },
+  { i: 'L', s: 3, d: 'il y a 3 j', t: 'Très bon, un peu d’attente le samedi.', r: 'Merci pour votre retour. Le samedi, réservez : on vous garde la table.' },
   { i: 'K', s: 5, d: 'il y a 4 j', t: 'Terrasse au top, on reviendra.', r: 'Avec plaisir ! La terrasse vous attend.' },
   { i: 'M', s: 3, d: 'il y a 5 j', t: 'Bon, mais la musique était forte.', r: 'Merci de nous l’avoir dit. Le son est plus bas en soirée désormais.' },
   { i: 'J', s: 5, d: 'il y a 1 sem.', t: 'Meilleure tielle de Sète.', r: 'Rien que ça ! Merci, on transmet en cuisine.' },

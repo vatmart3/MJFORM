@@ -2,7 +2,7 @@
 
 Site de MJ FORM, la branche formation de MJ LAB : ateliers IA pour commerçants et entrepreneurs du Bassin de Thau (Sète).
 
-Vite + React + TypeScript · Supabase · Stripe Checkout. Aucune bibliothèque d'animation : défilement natif, sans latence.
+Vite + React + TypeScript · Stripe Checkout · fonctions Vercel. Aucune bibliothèque d'animation : défilement natif, sans latence.
 
 ## Démarrer
 
@@ -20,47 +20,38 @@ npm run dev
 
 `npm run build` vérifie les types, construit le site, puis **pré-rend** la page d'accueil en HTML statique (`scripts/prerender.mjs`) : contenu visible sans JavaScript, meilleur SEO local et meilleur LCP. Le dossier `dist/` se déploie sur n'importe quel hébergement statique.
 
-## Variables d'environnement
+## Paiement et places : Stripe uniquement
 
-| Variable | Rôle |
+Le site est prévu pour Vercel. Les fonctions de `api/` appellent Stripe directement ; Stripe est la seule source de vérité pour les places :
+
+- places prises = paiements Stripe Checkout réussis et non remboursés + paiements en cours (non expirés) pour la même date et le même atelier ;
+- une place est retenue pendant 30 minutes le temps du paiement, puis libérée si le paiement n'aboutit pas ;
+- aucune base de données, aucun webhook à configurer.
+
+| Fonction | Rôle |
 | --- | --- |
-| `VITE_SITE_URL` | URL publique (canonical, Open Graph, JSON-LD). Mettre aussi à jour `public/robots.txt` et `public/sitemap.xml`. |
-| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Lecture des places restantes et lancement du paiement. |
-| `VITE_CONTACT_PHONE`, `VITE_CONTACT_EMAIL` | Coordonnées affichées dans « Parlons de votre commerce. ». Vides = rien n'est affiché (jamais de valeur inventée). |
+| `GET /api/availability` | Places restantes par date et par atelier |
+| `POST /api/checkout` | Vérifie l'atelier, la date, le stock et le prix, puis crée la session Stripe Checkout |
+| `GET /api/session?id=cs_…` | Récapitulatif affiché sur `/merci` (atelier, date, adresse, montant) |
 
-Sans Supabase configuré, le configurateur affiche les prochains créneaux habituels (vendredi 18 h 30, lundi 19 h) **sans aucun nombre de places**, et propose une demande par e-mail.
+### Variables d'environnement (Vercel → Settings → Environment Variables)
 
-## Réservations : Supabase + Stripe
+Voir `.env.example` : `STRIPE_SECRET_KEY` et un `STRIPE_PRICE_<ATELIER>` (identifiant `price_…`) par atelier. Le prix Stripe doit être en EUR et égal au prix affiché sur le site, sinon le paiement est refusé (aucun risque d'encaisser un autre montant).
 
-1. **Base** : exécuter `supabase/migrations/20261116000000_mjform_booking.sql` (tables `ateliers`, `sessions`, `bookings`, fonction publique `session_availability()`, fonction `hold_seat()` réservée au serveur). RLS activé, aucun accès direct du navigateur aux tables.
-2. **Sessions** : adapter puis exécuter `supabase/seed.sql` (la session de lancement du vendredi 4 décembre 2026 à 49 € y figure).
-3. **Secrets des fonctions** :
+Pour tester en local : mettre ces variables dans `.env.local`, puis `npm run dev` (les fonctions `api/` sont servies par Vite).
 
-   ```bash
-   supabase secrets set STRIPE_SECRET_KEY=sk_live_... STRIPE_WEBHOOK_SECRET=whsec_... SITE_URL=https://mjform.fr
-   ```
+### Sessions
 
-4. **Déploiement des fonctions** :
+Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décembre 2026, puis 15 et 25 janvier 2027). Les dates passées disparaissent d'elles-mêmes. Adresse affichée sur `/merci` et dans Stripe : `ADDRESS` dans le même fichier.
 
-   ```bash
-   supabase functions deploy create-checkout --no-verify-jwt
-   ```
+### Liens des flyers
 
-   ```bash
-   supabase functions deploy stripe-webhook --no-verify-jwt
-   ```
-
-5. **Webhook Stripe** : pointer vers `https://<projet>.supabase.co/functions/v1/stripe-webhook`, événements `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.expired`, `checkout.session.async_payment_failed`.
-
-Fonctionnement : le prix est recalculé côté serveur depuis la base ; une place est retenue de façon atomique pendant 31 minutes (le paiement Stripe expire à 30), puis confirmée par le webhook ou libérée à l'expiration. Les places affichées = capacité − places payées − paiements en cours.
-
-Le catalogue est défini à deux endroits qui doivent rester identiques : `src/data/ateliers.ts` (affichage, JSON-LD) et la table `ateliers` (prix encaissés).
+`?utm_source=flyer1`, `flyer2`, `flyer3` ou `?pilote` : l'atelier spécial fêtes est présélectionné et la page s'ouvre sur la réservation.
 
 ## À compléter avant la mise en ligne
 
-- Avis : `src/components/Reviews.tsx` contient trois emplacements « À REMPLACER PAR DE VRAIS AVIS ».
-- Mentions légales et CGV : les champs `à compléter` (SIRET, hébergeur, médiateur, droit de rétractation à valider).
-- Coordonnées dans `.env`.
+- Avis : la section est masquée (`SHOW_REVIEWS` dans `src/config.ts`). Remplacer les emplacements de `src/components/Reviews.tsx` par de vrais avis, puis passer le drapeau à `true`.
+- CGV : médiateur de la consommation et clause de rétractation à valider.
 
 ## Notes de conception
 

@@ -1,3 +1,4 @@
+import type { LevelId } from '../data/ateliers'
 import { useSyncExternalStore } from 'react'
 
 /** Mini-store sans dépendance : la progression du scroll 3D et la sélection du configurateur. */
@@ -57,7 +58,7 @@ export function useSceneStep(scene: number, steps: number) {
 
 // ——— Sélection du configurateur (pré-remplie depuis le bandeau, le comparateur…) ———
 export interface Selection {
-  level: 'n1' | 'n2' | null
+  level: LevelId | null
   atelierId: string | null
   sessionId: string | null
 }

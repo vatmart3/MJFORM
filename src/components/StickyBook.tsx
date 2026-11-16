@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ATELIERS, formatPrice } from '../data/ateliers'
+import { formatPrice, regularAteliers } from '../data/ateliers'
 import { BookLink } from './ui'
 
-const from = Math.min(...ATELIERS.map((a) => a.price))
+const from = Math.min(...regularAteliers().map((a) => a.price))
 
 /** Bouton « Réserver » toujours visible en bas sur mobile, masqué sur l'accroche et dans le configurateur. */
 export function StickyBook() {
