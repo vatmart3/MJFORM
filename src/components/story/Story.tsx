@@ -8,6 +8,57 @@ import './story.css'
 
 const PhoneCanvas = lazy(() => import('./PhoneCanvas'))
 
+/** Hauteur de scroll par scène (en hauteur d'écran) : assez long pour lire, voir et comprendre. */
+const SCENE_VH = 200
+
+const SHORT = ['Avis', 'Réseaux', 'Devis', 'Agent IA']
+
+/** Barre de progression en 4 segments, remplis au fil du scroll (sans re-rendu React). */
+function StoryProgress({ active, onPick }: { active: number; onPick: (i: number) => void }) {
+  const bar = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = bar.current
+    if (!el) return
+    const fills = Array.from(el.querySelectorAll<HTMLElement>('.seg-fill'))
+    let raf = 0
+    const apply = () => {
+      raf = 0
+      const p = storyProgress.get()
+      fills.forEach((f, i) => f.style.setProperty('--f', sceneLocal(p, i).toFixed(4)))
+    }
+    const unsub = storyProgress.subscribe(() => {
+      if (!raf) raf = requestAnimationFrame(apply)
+    })
+    apply()
+    return () => {
+      unsub()
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+  return (
+    <div className="story-progress" ref={bar} role="tablist" aria-label="Étapes de la démonstration">
+      {COPY.map((c, i) => (
+        <button
+          key={i}
+          type="button"
+          role="tab"
+          aria-selected={active === i}
+          aria-label={`${c.first} ${c.second}`}
+          className={`seg${active === i ? ' on' : ''}`}
+          onClick={() => onPick(i)}
+        >
+          <span className="seg-track">
+            <span className="seg-fill" />
+          </span>
+          <span className="seg-label">
+            <span className="seg-n">0{i + 1}</span> {SHORT[i]}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 const COPY = [
   {
     eyebrow: 'Atelier Google et avis',
@@ -244,11 +295,11 @@ export function Story() {
     if (!el) return
     const top = el.getBoundingClientRect().top + window.scrollY
     const span = el.offsetHeight - window.innerHeight
-    scrollToY(top + span * ((i + 0.55) / SCENES))
+    scrollToY(top + span * ((i + 0.75) / SCENES))
   }
 
   return (
-    <section className="story" id="demo" ref={section} aria-label="Ce que vous ferez en atelier" style={{ height: `${SCENES * 110 + 100}svh` }}>
+    <section className="story" id="demo" ref={section} aria-label="Ce que vous ferez en atelier" style={{ height: `${SCENES * SCENE_VH + 100}svh` }}>
       <div className="story-sticky">
         <div className="story-grid wrap">
           <div className="story-copy">
@@ -275,19 +326,7 @@ export function Story() {
           </div>
         </div>
         <div className="story-foot">
-          <div className="story-dots" role="tablist" aria-label="Scènes">
-            {COPY.map((c, i) => (
-              <button
-                key={i}
-                type="button"
-                role="tab"
-                aria-selected={active === i}
-                aria-label={`${c.first} ${c.second}`}
-                className={active === i ? 'on' : ''}
-                onClick={() => goScene(i)}
-              />
-            ))}
-          </div>
+          <StoryProgress active={active} onPick={goScene} />
           <span className="story-note">Écrans de démonstration</span>
         </div>
       </div>

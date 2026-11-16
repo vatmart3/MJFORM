@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Html, Lightformer, RoundedBox } from '@react-three/drei'
+import { ContactShadows, Environment, Html, Lightformer, RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 import { storyProgress, storyEnter } from '../../lib/store'
 import { PhoneScreens } from './Screens'
@@ -12,9 +12,10 @@ import { PhoneScreens } from './Screens'
 */
 
 const W = 0.78
-const H = 1.62
-const D = 0.085
-const SCREEN_W = 0.724
+const H = 1.64
+const D = 0.078
+const R = 0.118
+const SCREEN_W = 0.744
 const SCREEN_CSS_W = 360
 // 1 px CSS = distanceFactor / 400 unités (cf. drei Html)
 const DISTANCE_FACTOR = (SCREEN_W * 400) / SCREEN_CSS_W
@@ -44,6 +45,8 @@ function Phone({
     return () => window.removeEventListener('pointermove', move)
   }, [reduced])
 
+  const glare = useRef<HTMLElement | null>(null)
+
   useFrame((state, dt) => {
     const g = group.current
     if (!g) return
@@ -54,58 +57,100 @@ function Phone({
     const p = storyProgress.get()
     const enter = storyEnter.get()
     const t = p * 4
-    // Léger balancement d'une scène à l'autre, entrée en rotation depuis le bas
-    let ry = reduced ? 0 : -0.16 * Math.cos(Math.PI * t) + pointer.current.x * 0.14
-    let rx = reduced ? 0 : 0.06 + pointer.current.y * 0.06 + (1 - enter) * 0.55
-    let y = reduced ? 0 : -(1 - enter) * 0.5 + Math.sin(state.clock.elapsedTime * 0.9) * 0.012
-    let rz = reduced ? 0 : 0.03 * Math.sin(Math.PI * t)
-    // Sortie : le téléphone s'éloigne un peu en fin de section
-    const out = Math.max(0, (p - 0.94) / 0.06)
-    const s = 1 - out * 0.06
+    // Le téléphone reste de face pendant chaque scène et ne pivote qu'au passage
+    // d'une scène à l'autre : on lit l'écran, puis il se tourne pour changer d'écran.
+    const n = Math.round(t)
+    let w = Math.max(0, 1 - Math.abs(t - n) / 0.22)
+    w = w * w * (3 - 2 * w)
+    const side = n % 2 === 0 ? -1 : 1
+    const intro = (1 - enter) * (1 - enter)
+    let ry = side * 0.3 * w + pointer.current.x * 0.12 - intro * 0.9
+    let rx = 0.04 + pointer.current.y * 0.05 + (1 - enter) * 0.35
+    let rz = side * 0.02 * w
+    let y = -(1 - enter) * 0.45 + Math.sin(state.clock.elapsedTime * 0.8) * 0.01
+    let s = 1 - 0.035 * w
     if (reduced) {
       ry = rx = rz = y = 0
+      s = 1
     }
-    const k = 6
-    g.rotation.y = damp(g.rotation.y, ry, k, dt)
-    g.rotation.x = damp(g.rotation.x, rx, k, dt)
-    g.rotation.z = damp(g.rotation.z, rz, k, dt)
-    g.position.y = damp(g.position.y, y, k, dt)
-    g.scale.setScalar(damp(g.scale.x, s, k, dt))
+    // Amortissement doux : mouvement fluide, sans à-coups même si le scroll est rapide
+    g.rotation.y = damp(g.rotation.y, ry, 3.2, dt)
+    g.rotation.x = damp(g.rotation.x, rx, 3.2, dt)
+    g.rotation.z = damp(g.rotation.z, rz, 3.2, dt)
+    g.position.y = damp(g.position.y, y, 3.6, dt)
+    g.scale.setScalar(damp(g.scale.x, s, 3.6, dt))
+
+    // Reflet de l'écran qui glisse avec la rotation
+    glare.current ??= portal.current?.querySelector<HTMLElement>('.ps-glare') ?? null
+    if (glare.current) {
+      glare.current.style.transform = `translate3d(${(-g.rotation.y * 120).toFixed(1)}px, ${(g.rotation.x * 80).toFixed(1)}px, 0)`
+    }
   })
 
   const frame = useMemo(
-    () => new THREE.MeshPhysicalMaterial({ color: '#b9b9be', metalness: 1, roughness: 0.28, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: '#c9c9ce',
+        metalness: 1,
+        roughness: 0.22,
+        clearcoat: 1,
+        clearcoatRoughness: 0.12,
+      }),
     [],
   )
-  const glass = useMemo(
-    () => new THREE.MeshPhysicalMaterial({ color: '#050506', metalness: 0.1, roughness: 0.05, clearcoat: 1, clearcoatRoughness: 0.02 }),
+  const glass = useMemo(() => new THREE.MeshStandardMaterial({ color: '#050506', metalness: 0, roughness: 0.18 }), [])
+  // Face avant plate aux coins arrondis : la bordure noire autour de l'écran
+  const frontShape = useMemo(() => {
+    const w = W - 0.012
+    const h = H - 0.012
+    const r = R - 0.006
+    const x = -w / 2
+    const y = -h / 2
+    const shape = new THREE.Shape()
+    shape.moveTo(x + r, y)
+    shape.lineTo(x + w - r, y)
+    shape.quadraticCurveTo(x + w, y, x + w, y + r)
+    shape.lineTo(x + w, y + h - r)
+    shape.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+    shape.lineTo(x + r, y + h)
+    shape.quadraticCurveTo(x, y + h, x, y + h - r)
+    shape.lineTo(x, y + r)
+    shape.quadraticCurveTo(x, y, x + r, y)
+    return new THREE.ShapeGeometry(shape, 24)
+  }, [])
+  const back = useMemo(
+    () => new THREE.MeshPhysicalMaterial({ color: '#d6d6db', metalness: 0.2, roughness: 0.55, clearcoat: 0.6, clearcoatRoughness: 0.4 }),
     [],
   )
-  const back = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#2c2c2e', metalness: 0.3, roughness: 0.45, clearcoat: 0.8 }), [])
+  const lens = useMemo(() => new THREE.MeshPhysicalMaterial({ color: '#0a0a0c', metalness: 0.4, roughness: 0.1, clearcoat: 1 }), [])
 
   return (
     <group ref={group}>
-      {/* Cadre métal */}
-      <RoundedBox args={[W, H, D]} radius={0.105} smoothness={8} material={frame} />
-      {/* Dos */}
-      <RoundedBox args={[W - 0.012, H - 0.012, 0.01]} radius={0.1} smoothness={6} position={[0, 0, -D / 2 - 0.001]} material={back} />
-      {/* Verre avant */}
-      <RoundedBox args={[W - 0.016, H - 0.016, 0.006]} radius={0.098} smoothness={6} position={[0, 0, D / 2 - 0.001]} material={glass} />
+      {/* Cadre métal aux bords arrondis */}
+      <RoundedBox args={[W, H, D]} radius={R} smoothness={10} material={frame} />
+      {/* Dos mat */}
+      <RoundedBox args={[W - 0.01, H - 0.01, 0.008]} radius={R - 0.004} smoothness={8} position={[0, 0, -D / 2 - 0.0005]} material={back} />
+      {/* Module photo générique au dos (deux objectifs, aucun logo) */}
+      <group position={[-W / 2 + 0.17, H / 2 - 0.17, -D / 2 - 0.006]}>
+        <RoundedBox args={[0.24, 0.24, 0.012]} radius={0.06} smoothness={6} material={back} />
+        <mesh position={[0, 0.05, -0.008]} rotation-x={Math.PI / 2} material={lens}>
+          <cylinderGeometry args={[0.042, 0.042, 0.012, 32]} />
+        </mesh>
+        <mesh position={[0, -0.05, -0.008]} rotation-x={Math.PI / 2} material={lens}>
+          <cylinderGeometry args={[0.042, 0.042, 0.012, 32]} />
+        </mesh>
+      </group>
+      {/* Verre avant, bordures fines */}
+      <mesh geometry={frontShape} material={glass} position={[0, 0, D / 2 + 0.0012]} />
       {/* Boutons latéraux */}
-      <mesh position={[W / 2 + 0.004, 0.32, 0]} material={frame}>
-        <boxGeometry args={[0.012, 0.2, 0.03]} />
-      </mesh>
-      <mesh position={[-W / 2 - 0.004, 0.42, 0]} material={frame}>
-        <boxGeometry args={[0.012, 0.11, 0.03]} />
-      </mesh>
-      <mesh position={[-W / 2 - 0.004, 0.27, 0]} material={frame}>
-        <boxGeometry args={[0.012, 0.11, 0.03]} />
-      </mesh>
+      <RoundedBox args={[0.014, 0.2, 0.026]} radius={0.006} position={[W / 2 + 0.003, 0.3, 0]} material={frame} />
+      <RoundedBox args={[0.014, 0.11, 0.026]} radius={0.006} position={[-W / 2 - 0.003, 0.42, 0]} material={frame} />
+      <RoundedBox args={[0.014, 0.11, 0.026]} radius={0.006} position={[-W / 2 - 0.003, 0.27, 0]} material={frame} />
       {/* Écran : DOM réel projeté en 3D */}
       <Html
         transform
         distanceFactor={DISTANCE_FACTOR}
-        position={[0, 0, D / 2 + 0.0035]}
+        position={[0, 0, D / 2 + 0.003]}
         pointerEvents="none"
         portal={portal as RefObject<HTMLElement>}
         zIndexRange={[5, 0]}
@@ -123,7 +168,7 @@ function Rig() {
   useEffect(() => {
     const cam = camera as THREE.PerspectiveCamera
     const fov = THREE.MathUtils.degToRad(cam.fov)
-    const fill = size.width < 700 ? 0.86 : 0.8
+    const fill = size.width < 700 ? 0.88 : 0.76
     const byH = H / fill / (2 * Math.tan(fov / 2))
     const aspect = size.width / size.height
     const byW = W / 0.62 / (2 * Math.tan(fov / 2) * aspect)
@@ -159,12 +204,14 @@ export default function PhoneCanvas({ reduced, onReady }: { reduced: boolean; on
         <ambientLight intensity={0.6} />
         <directionalLight position={[2, 3, 4]} intensity={1.2} />
         <Environment resolution={128} frames={1}>
-          <Lightformer form="rect" intensity={2.4} position={[0, 2.5, 3]} scale={[6, 1.2, 1]} />
+          <Lightformer form="rect" intensity={2.6} position={[0, 2.5, 3]} scale={[6, 1.2, 1]} />
+          <Lightformer form="rect" intensity={1.6} position={[0, 0, -3]} rotation-y={Math.PI} scale={[6, 4, 1]} />
           <Lightformer form="rect" intensity={1.2} position={[-3, 0, 2]} rotation-y={Math.PI / 2} scale={[4, 2, 1]} />
           <Lightformer form="rect" intensity={1.2} position={[3, 0, 2]} rotation-y={-Math.PI / 2} scale={[4, 2, 1]} />
           <Lightformer form="circle" intensity={0.8} position={[0, -3, 1]} scale={2} />
         </Environment>
         <Phone reduced={reduced} onReady={onReady} portal={wrap} />
+        <ContactShadows position={[0, -H / 2 - 0.1, 0]} opacity={0.32} scale={2.6} blur={2.6} far={1.4} resolution={256} color="#1d1d1f" />
       </Canvas>
     </div>
   )

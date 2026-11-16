@@ -24,7 +24,8 @@ let lenis: Lenis | null = null
 
 export function initSmoothScroll() {
   if (!isBrowser || prefersReducedMotion() || lenis) return lenis
-  lenis = new Lenis({ duration: 1.1, easing: (t) => 1 - Math.pow(1 - t, 4), touchMultiplier: 1.2 })
+  // lerp bas = défilement plus doux et plus « glissé », sans perdre en réactivité
+  lenis = new Lenis({ lerp: 0.075, wheelMultiplier: 0.85, touchMultiplier: 1.1, smoothWheel: true })
   lenis.on('scroll', ScrollTrigger.update)
   gsap.ticker.add((time) => lenis?.raf(time * 1000))
   gsap.ticker.lagSmoothing(0)

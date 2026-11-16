@@ -21,7 +21,7 @@
     grid-template-rows: 1fr;
     grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
     align-items: center;
-    padding-bottom: 40px;
+    padding-bottom: 96px;
   }
 }
 
@@ -48,9 +48,6 @@
   font-size: clamp(28px, 7.4vw, 64px);
 }
 @media (max-width: 999px) {
-  .story-grid {
-    padding-top: calc(var(--nav-h) + 12px);
-  }
   .scene-copy .eyebrow {
     font-size: 11px;
     margin-bottom: 6px;
@@ -134,12 +131,12 @@
   inset: 0;
   container-type: size;
   perspective: 1200px;
-  --fill: 86cqh;
-  --pw: calc(var(--fill) * 0.4815);
+  --fill: 88cqh;
+  --pw: calc(var(--fill) * 0.4756);
 }
 @media (min-width: 1000px) {
   .stage-3d {
-    --fill: 80cqh;
+    --fill: 76cqh;
   }
 }
 .phone-canvas {
@@ -172,7 +169,7 @@
 }
 .css-phone-body {
   height: var(--fill);
-  aspect-ratio: 0.78 / 1.62;
+  aspect-ratio: 0.78 / 1.64;
   border-radius: calc(var(--pw) * 0.135);
   background: #1d1d1f;
   box-shadow:
@@ -316,71 +313,115 @@
   }
 }
 
-/* Pied de scène : progression */
+/* Progression : 4 segments qui se remplissent au fil du scroll */
 .story-foot {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 18px;
+  bottom: 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
   z-index: 3;
+  padding: 0 var(--gutter);
 }
-.story-dots {
-  display: flex;
+.story-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  width: min(520px, 100%);
 }
-.story-dots button {
-  position: relative;
-  width: 20px;
-  height: 24px;
-  padding: 0;
+.seg {
   border: 0;
   background: none;
+  padding: 8px 0 0;
   cursor: pointer;
-  transition: width 0.6s var(--spring);
+  text-align: left;
+  color: var(--ink-2);
+  transition: color 0.3s;
 }
-.story-dots button::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #c7c7cc;
-  transform: translate(-50%, -50%);
-  transition:
-    width 0.6s var(--spring),
-    background 0.3s;
+.seg.on {
+  color: var(--ink);
 }
-.story-dots button.on {
-  width: 36px;
+.seg-track {
+  display: block;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
-.story-dots button.on::before {
-  width: 24px;
+.seg-fill {
+  --f: 0;
+  display: block;
+  height: 100%;
+  border-radius: 3px;
   background: var(--blue);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--f));
 }
-.story-dots {
-  gap: 0;
-  padding: 0 8px;
+.seg-label {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.seg-n {
+  font-variant-numeric: tabular-nums;
+  color: var(--blue);
+  margin-right: 2px;
 }
 .story-note {
   font-size: 11px;
   color: var(--ink-2);
 }
+@media (max-width: 999px) {
+  /* Sur mobile, la progression se place en haut, sous la navigation */
+  .story-foot {
+    top: calc(var(--nav-h) + 6px);
+    bottom: auto;
+  }
+  .story-note {
+    display: none;
+  }
+  .story-grid {
+    padding-top: calc(var(--nav-h) + 58px);
+  }
+  .seg-label {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+}
 @media (max-width: 759px) {
   .story-grid {
     padding-bottom: 92px;
   }
-  .story-foot {
+}
+
+/* Mobile : le téléphone d'abord. Deux widgets seulement, sur les bords, sans masquer l'écran. */
+@media (max-width: 759px) {
+  .scene-copy .link-arrow {
     display: none;
+  }
+  .pos-b {
+    display: none;
+  }
+  .pos-a {
+    left: 0;
+    top: 2%;
+  }
+  .pos-c {
+    left: auto;
+    right: 0;
+    top: 80%;
+  }
+  .glass {
+    max-width: 150px;
+    gap: 8px;
+  }
+  .glass-ic {
+    width: 24px;
+    height: 24px;
   }
 }

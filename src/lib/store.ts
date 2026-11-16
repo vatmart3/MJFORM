@@ -44,12 +44,13 @@ export function useActiveScene() {
 
 /**
  * Nombre d'étapes atteintes dans une scène (0 → steps).
- * L'animation commence à 12 % de la scène et se termine à 78 % : le temps de lire le titre.
+ * L'animation commence à 10 % de la scène et se termine à 70 % : le visiteur lit d'abord
+ * le titre, voit l'écran se transformer, puis garde le résultat sous les yeux avant la suite.
  */
 export function useSceneStep(scene: number, steps: number) {
   return useStoreSelector(storyProgress, (p) => {
     const local = sceneLocal(p, scene)
-    const t = Math.min(1, Math.max(0, (local - 0.12) / 0.66))
+    const t = Math.min(1, Math.max(0, (local - 0.1) / 0.6))
     return Math.round(t * steps)
   })
 }
