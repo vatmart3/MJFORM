@@ -139,59 +139,84 @@
     --fill: 76cqh;
   }
 }
-.phone-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-.phone-canvas canvas {
-  touch-action: pan-y;
-}
-.phone-html {
-  pointer-events: none;
-}
-
-/* Téléphone CSS : affiché avant le chargement de la 3D, ou sans WebGL */
+/* Téléphone générique dessiné en CSS : cadre argenté, bordure noire fine, aucune marque */
 .css-phone {
   position: absolute;
   inset: 0;
   z-index: 1;
   display: grid;
   place-items: center;
-  transition: opacity 0.6s var(--smooth);
-}
-.css-phone.hide {
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.6s var(--smooth),
-    visibility 0s 0.6s;
 }
 .css-phone-body {
+  position: relative;
   height: var(--fill);
   aspect-ratio: 0.78 / 1.64;
-  border-radius: calc(var(--pw) * 0.135);
-  background: #1d1d1f;
+  border-radius: calc(var(--pw) * 0.152);
+  padding: max(2px, calc(var(--pw) * 0.011));
+  background: linear-gradient(140deg, #f5f5f7 0%, #b8b8bd 22%, #e8e8ed 48%, #9a9aa0 74%, #d9d9de 100%);
   box-shadow:
-    inset 0 0 0 2px #8e8e93,
-    inset 0 0 0 4px #2c2c2e,
-    0 40px 80px rgba(0, 0, 0, 0.18);
-  padding: calc(var(--pw) * 0.035);
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.9),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8),
+    0 1px 2px rgba(0, 0, 0, 0.08),
+    0 30px 60px -20px rgba(0, 0, 0, 0.28);
+}
+/* Ombre au sol */
+.css-phone-body::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: calc(var(--fill) * -0.075);
+  height: calc(var(--fill) * 0.045);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(29, 29, 31, 0.28), rgba(29, 29, 31, 0));
+  z-index: -1;
+}
+.css-phone-bezel {
+  width: 100%;
+  height: 100%;
+  border-radius: calc(var(--pw) * 0.14);
+  padding: calc(var(--pw) * 0.023);
+  background: #050506;
 }
 .css-phone-screen {
   width: 100%;
   height: 100%;
-  border-radius: calc(var(--pw) * 0.11);
+  border-radius: calc(var(--pw) * 0.118);
   overflow: hidden;
-  container-type: size;
   position: relative;
+  background: #fff;
 }
 .css-phone-screen .ps-root {
   position: absolute;
   left: 0;
   top: 0;
+  border-radius: 0;
   transform-origin: 0 0;
   transform: scale(var(--s, 0.5));
+}
+.btn-side {
+  position: absolute;
+  width: max(2px, calc(var(--pw) * 0.014));
+  border-radius: 2px;
+  background: linear-gradient(90deg, #8e8e93, #d2d2d7);
+}
+.btn-power {
+  right: calc(var(--pw) * -0.012);
+  top: 27%;
+  height: 12%;
+}
+.btn-vol1,
+.btn-vol2 {
+  left: calc(var(--pw) * -0.012);
+  height: 7%;
+  background: linear-gradient(270deg, #8e8e93, #d2d2d7);
+}
+.btn-vol1 {
+  top: 22%;
+}
+.btn-vol2 {
+  top: 31%;
 }
 
 /* Widgets en verre dépoli */
@@ -424,4 +449,36 @@
     width: 24px;
     height: 24px;
   }
+}
+
+/* Sans mouvement : changement de scène par fondu court, widgets fixes */
+.scene-copy .w > span,
+.scene-copy.on .w > span {
+  transform: none;
+  transition: opacity 0.25s ease-out;
+  transition-delay: 0s;
+}
+.scene-copy .eyebrow,
+.scene-copy .story-text,
+.scene-copy .link-arrow,
+.scene-copy.on .eyebrow,
+.scene-copy.on .story-text,
+.scene-copy.on .link-arrow {
+  transform: none;
+  filter: none;
+  transition: opacity 0.25s ease-out;
+  transition-delay: 0s;
+}
+.glass-layer {
+  transition: none;
+}
+.glass-slot {
+  will-change: auto;
+}
+.glass,
+.glass.on {
+  transform: none;
+  filter: none;
+  transition: opacity 0.25s ease-out;
+  transition-delay: 0s;
 }

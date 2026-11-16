@@ -641,3 +641,65 @@
   color: #aeaeb2;
   font-size: 15px;
 }
+
+/* Sans mouvement : contenus de l'écran en fondu court, sans rebond ni flou */
+.ps-layer,
+.ps-layer.on {
+  transform: none;
+  filter: none;
+  transition: opacity 0.22s ease-out;
+}
+.ps-glare {
+  inset: 0;
+  will-change: auto;
+}
+.ps-list {
+  transition: transform 0.3s ease-out;
+}
+.ps-wait,
+.ps-answer,
+.ps-review.done .ps-wait,
+.ps-review.done .ps-answer {
+  transform: none;
+  transition: opacity 0.22s ease-out;
+}
+.ps-tile-body,
+.ps-tile.in .ps-tile-body {
+  transform: none;
+  filter: none;
+  transition: opacity 0.25s ease-out;
+}
+.ps-toast,
+.ps-toast.in,
+.ps-totals,
+.ps-totals.in,
+.ps-line,
+.ps-line.in {
+  transform: none;
+  filter: none;
+  transition: opacity 0.22s ease-out;
+}
+.ps-switch i {
+  transition: transform 0.18s ease-out;
+}
+.ps-bubble,
+.ps-bubble.in {
+  transform: none;
+  transition:
+    max-height 0.22s ease-out,
+    padding 0.22s ease-out,
+    margin 0.22s ease-out,
+    opacity 0.22s ease-out;
+}
+.ps-bubble.typing i {
+  animation: typing-fade 1.1s infinite ease-in-out;
+}
+@keyframes typing-fade {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}

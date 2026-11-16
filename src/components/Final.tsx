@@ -37,7 +37,7 @@ export function FinalCta() {
           ) : null}
         </div>
         <div className="hero-ctas" data-reveal="">
-          <BookLink className="btn btn-primary" magnetic="0.3">
+          <BookLink className="btn btn-primary">
             Réserver ma place
           </BookLink>
         </div>

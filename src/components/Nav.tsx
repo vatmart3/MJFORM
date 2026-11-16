@@ -38,7 +38,7 @@ export function Nav() {
             ))}
           </ul>
         </nav>
-        <BookLink className="btn btn-primary btn-sm" magnetic="0.2">Réserver</BookLink>
+        <BookLink className="btn btn-primary btn-sm">Réserver</BookLink>
       </div>
     </header>
   )

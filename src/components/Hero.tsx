@@ -41,7 +41,7 @@ export function Hero() {
         </p>
         <div className="hero-ctas">
           <span className="in" style={{ ['--i' as string]: 7 }}>
-            <BookLink className="btn btn-primary" magnetic="0.3">
+            <BookLink className="btn btn-primary">
               Réserver ma place
             </BookLink>
           </span>
@@ -49,7 +49,7 @@ export function Hero() {
             <a
               className="btn btn-secondary"
               href="#ateliers"
-              data-magnetic="0.25"
+             
               onClick={(e) => {
                 e.preventDefault()
                 scrollToTarget('#ateliers')

@@ -62,6 +62,3 @@ export interface Selection {
   sessionId: string | null
 }
 export const selection = createStore<Selection>({ level: null, atelierId: null, sessionId: null })
-
-/** Entrée de la section dans l'écran (0 → 1), pour l'arrivée du téléphone. */
-export const storyEnter = createStore(0)

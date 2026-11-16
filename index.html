@@ -24,8 +24,81 @@
     <meta property="og:image" content="%SITE_URL%/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/poppins-700.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      /* Écran de chargement : présent dans le HTML, affiché avant tout JavaScript */
+      @font-face {
+        font-family: 'Poppins Logo';
+        src: url('/fonts/poppins-700.woff2') format('woff2');
+        font-weight: 700;
+        font-display: block;
+      }
+      #loader {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: #fff;
+        color: #1d1d1f;
+        transition: opacity 0.3s ease-out, visibility 0s 0.3s;
+        animation: ld-failsafe 0.3s ease-out 4s forwards;
+      }
+      #loader.done {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #loader .ld-logo {
+        font-family: 'Poppins Logo', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 700;
+        font-size: 36px;
+        letter-spacing: -0.01em;
+        line-height: 1;
+      }
+      #loader .ld-logo span {
+        color: #0071e3;
+      }
+      #loader .ld-bar {
+        width: 140px;
+        height: 3px;
+        border-radius: 3px;
+        background: #e8e8ed;
+        overflow: hidden;
+      }
+      #loader .ld-bar i {
+        display: block;
+        height: 100%;
+        background: #0071e3;
+        transform-origin: 0 50%;
+        transform: scaleX(var(--p, 0.25));
+        transition: transform 0.25s ease-out;
+      }
+      #loader .ld-sub {
+        font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #6e6e73;
+      }
+      @keyframes ld-failsafe {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+    </style>
+    <noscript><style>#loader { display: none; }</style></noscript>
   </head>
   <body>
+    <div id="loader" aria-hidden="true">
+      <div class="ld-logo">MJ<span>.</span> FORM</div>
+      <div class="ld-bar"><i></i></div>
+      <div class="ld-sub">Ateliers IA à Sète</div>
+    </div>
     <div id="root"><!--app--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

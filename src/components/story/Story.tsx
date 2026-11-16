@@ -1,12 +1,11 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { ScrollTrigger, prefersReducedMotion, scrollToY } from '../../lib/motion'
-import { SCENES, sceneLocal, storyEnter, storyProgress, useActiveScene } from '../../lib/store'
+import { useEffect, useRef } from 'react'
+import { scrollToY } from '../../lib/motion'
+import { SCENES, sceneLocal, storyProgress, useActiveScene } from '../../lib/store'
 import { BookLink } from '../ui'
 import { PhoneScreens } from './Screens'
 import './screens.css'
 import './story.css'
 
-const PhoneCanvas = lazy(() => import('./PhoneCanvas'))
 
 /** Hauteur de scroll par scène (en hauteur d'écran) : assez long pour lire, voir et comprendre. */
 const SCENE_VH = 200
@@ -134,49 +133,9 @@ function WidgetIcon({ kind }: { kind: 'dot' | 'check' | 'spark' | 'clock' }) {
 
 function Widgets() {
   const active = useActiveScene()
-  const layer = useRef<HTMLDivElement>(null)
-
-  // Parallaxe 3D : profondeur liée au scroll + inclinaison au pointeur (sans re-rendu React)
-  useEffect(() => {
-    const el = layer.current
-    if (!el || prefersReducedMotion()) return
-    const items = Array.from(el.querySelectorAll<HTMLElement>('[data-depth]'))
-    let px = 0
-    let py = 0
-    let raf = 0
-    const apply = () => {
-      raf = 0
-      const p = storyProgress.get()
-      items.forEach((it) => {
-        const depth = Number(it.dataset.depth)
-        const scene = Number(it.dataset.scene)
-        const local = sceneLocal(p, scene)
-        const y = (0.5 - local) * 90 * depth
-        it.style.transform = `translate3d(${px * 14 * depth}px, ${y + py * 10 * depth}px, ${depth * 40}px)`
-      })
-      el.style.transform = `rotateY(${px * 6}deg) rotateX(${-py * 5}deg)`
-    }
-    const schedule = () => {
-      if (!raf) raf = requestAnimationFrame(apply)
-    }
-    const unsub = storyProgress.subscribe(schedule)
-    const fine = window.matchMedia('(hover: hover)').matches
-    const move = (e: PointerEvent) => {
-      px = (e.clientX / window.innerWidth) * 2 - 1
-      py = (e.clientY / window.innerHeight) * 2 - 1
-      schedule()
-    }
-    if (fine) window.addEventListener('pointermove', move, { passive: true })
-    apply()
-    return () => {
-      unsub()
-      cancelAnimationFrame(raf)
-      window.removeEventListener('pointermove', move)
-    }
-  }, [])
 
   return (
-    <div className="glass-layer" ref={layer} aria-hidden="true">
+    <div className="glass-layer" aria-hidden="true">
       {WIDGETS.map((group, s) =>
         group.map((w, i) => (
           <div key={`${s}-${i}`} className={`glass-slot pos-${w.pos}`} data-depth={w.depth} data-scene={s}>
@@ -219,30 +178,11 @@ function SceneCopy({ i, active }: { i: number; active: boolean }) {
   )
 }
 
-function useWebGL() {
-  const [ok, setOk] = useState<boolean | null>(null)
-  useEffect(() => {
-    try {
-      const c = document.createElement('canvas')
-      setOk(Boolean(c.getContext('webgl2') || c.getContext('webgl')))
-    } catch {
-      setOk(false)
-    }
-  }, [])
-  return ok
-}
-
 export function Story() {
   const section = useRef<HTMLElement>(null)
   const active = useActiveScene()
-  const webgl = useWebGL()
-  const [near, setNear] = useState(false)
-  const [canvasReady, setCanvasReady] = useState(false)
-  const [reduced, setReduced] = useState(false)
 
   const cssScreen = useRef<HTMLDivElement>(null)
-
-  useEffect(() => setReduced(prefersReducedMotion()), [])
 
   // Mise à l'échelle de l'écran 360 × 780 dans le téléphone CSS
   useEffect(() => {
@@ -253,41 +193,33 @@ export function Story() {
     return () => ro.disconnect()
   }, [])
 
-  // Progression scrubbée sur toute la hauteur de la section
+  // Progression lue directement à chaque événement de scroll natif : aucune latence ajoutée
   useEffect(() => {
     const el = section.current
     if (!el) return
-    const main = ScrollTrigger.create({
-      trigger: el,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => storyProgress.set(self.progress),
-    })
-    const enter = ScrollTrigger.create({
-      trigger: el,
-      start: 'top bottom',
-      end: 'top top',
-      onUpdate: (self) => storyEnter.set(self.progress),
-    })
-    storyProgress.set(main.progress)
-    storyEnter.set(enter.progress)
+    let top = 0
+    let span = 1
+    let vh = window.innerHeight
+    const measure = () => {
+      vh = window.innerHeight
+      top = el.getBoundingClientRect().top + window.scrollY
+      span = Math.max(1, el.offsetHeight - vh)
+      update()
+    }
+    const update = () => {
+      const y = window.scrollY
+      storyProgress.set(Math.min(1, Math.max(0, (y - top) / span)))
+    }
+    measure()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', measure)
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.body)
     return () => {
-      main.kill()
-      enter.kill()
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', measure)
+      ro.disconnect()
     }
-  }, [])
-
-  // Chargement de la 3D au premier geste de l'utilisateur (scroll, toucher, clavier) :
-  // le premier affichage reste léger, le téléphone CSS assure la transition.
-  useEffect(() => {
-    const events = ['scroll', 'wheel', 'touchstart', 'pointerdown', 'keydown'] as const
-    const go = () => {
-      setNear(true)
-      events.forEach((e) => window.removeEventListener(e, go))
-    }
-    events.forEach((e) => window.addEventListener(e, go, { passive: true, once: true }))
-    if (window.scrollY > 0) go()
-    return () => events.forEach((e) => window.removeEventListener(e, go))
   }, [])
 
   const goScene = (i: number) => {
@@ -310,18 +242,18 @@ export function Story() {
           <div className="story-stage">
             <div className="stage-3d">
               <Widgets />
-              <div className={`css-phone${canvasReady ? ' hide' : ''}`} aria-hidden="true">
+              <div className="css-phone" aria-hidden="true">
                 <div className="css-phone-body">
-                  <div className="css-phone-screen" ref={cssScreen}>
-                    <PhoneScreens />
+                  <span className="btn-side btn-power" />
+                  <span className="btn-side btn-vol1" />
+                  <span className="btn-side btn-vol2" />
+                  <div className="css-phone-bezel">
+                    <div className="css-phone-screen" ref={cssScreen}>
+                      <PhoneScreens />
+                    </div>
                   </div>
                 </div>
               </div>
-              {webgl && near ? (
-                <Suspense fallback={null}>
-                  <PhoneCanvas reduced={reduced} onReady={() => setCanvasReady(true)} />
-                </Suspense>
-              ) : null}
             </div>
           </div>
         </div>

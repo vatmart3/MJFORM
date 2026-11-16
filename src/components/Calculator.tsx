@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { gsap, prefersReducedMotion } from '../lib/motion'
+import { tweenNumber } from '../lib/motion'
 import { BookLink, Eyebrow, SplitTitle } from './ui'
 
 /*
@@ -69,28 +69,14 @@ export function Calculator() {
   const out = useRef<HTMLSpanElement>(null)
   const shown = useRef(hours)
 
-  // Compteur animé (ressort) — direct si le mouvement est réduit
+  // Compteur animé (chiffres uniquement, aucun déplacement)
   useEffect(() => {
     const el = out.current
     if (!el) return
-    if (prefersReducedMotion()) {
-      el.textContent = String(hours)
-      shown.current = hours
-      return
-    }
-    const obj = { v: shown.current }
-    const tween = gsap.to(obj, {
-      v: hours,
-      duration: 0.9,
-      ease: 'expo.out',
-      onUpdate: () => {
-        shown.current = obj.v
-        el.textContent = String(Math.round(obj.v))
-      },
+    return tweenNumber(shown.current, hours, 350, (v) => {
+      shown.current = v
+      el.textContent = String(Math.round(v))
     })
-    return () => {
-      tween.kill()
-    }
   }, [hours])
 
   const days = Math.round((hours / 7) * 2) / 2
@@ -140,7 +126,7 @@ export function Calculator() {
             <p className="sub">
               Soit environ {String(days).replace('.', ',')} {days > 1 ? 'journées' : 'journée'} de 7 heures.
             </p>
-            <BookLink className="btn btn-primary" magnetic="0.3">
+            <BookLink className="btn btn-primary">
               Récupérer ce temps
             </BookLink>
             <p className="calc-hyp">

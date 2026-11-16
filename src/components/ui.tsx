@@ -82,20 +82,18 @@ export function BookLink({
   sessionId,
   children = 'Réserver ma place',
   className = 'link-arrow',
-  magnetic,
 }: {
   atelierId?: string
   sessionId?: string
   children?: ReactNode
   className?: string
-  magnetic?: string
 }) {
   const onClick = (e: MouseEvent) => {
     e.preventDefault()
     goBook(atelierId, sessionId)
   }
   return (
-    <a href="#reserver" className={className || undefined} onClick={onClick} data-magnetic={magnetic}>
+    <a href="#reserver" className={className || undefined} onClick={onClick}>
       {children}
     </a>
   )

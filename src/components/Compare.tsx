@@ -78,7 +78,7 @@ export function Compare() {
               <h3>{l.name}</h3>
               <p>{l.tagline}</p>
               <div className="from">À partir de {formatPrice(minPrice(l.id))}</div>
-              <BookLink atelierId={ateliersOf(l.id)[0].id} className="btn btn-primary btn-sm" magnetic="0.2">
+              <BookLink atelierId={ateliersOf(l.id)[0].id} className="btn btn-primary btn-sm">
                 Réserver
               </BookLink>
             </div>

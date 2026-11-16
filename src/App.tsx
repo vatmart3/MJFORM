@@ -13,7 +13,7 @@ import { Reviews } from './components/Reviews'
 import { Steps } from './components/Steps'
 import { StickyBook } from './components/StickyBook'
 import { Story } from './components/story/Story'
-import { initMagnetic, initReveals, initSmoothScroll, ScrollTrigger } from './lib/motion'
+import { initReveals } from './lib/motion'
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null)
@@ -21,15 +21,7 @@ export default function App() {
   useEffect(() => {
     const el = root.current
     if (!el) return
-    initSmoothScroll()
-    const undoReveals = initReveals(el)
-    const undoMagnetic = initMagnetic(el)
-    // Recalcule les déclencheurs une fois les polices chargées (hauteurs définitives)
-    document.fonts?.ready.then(() => ScrollTrigger.refresh())
-    return () => {
-      undoReveals()
-      undoMagnetic()
-    }
+    return initReveals(el)
   }, [])
 
   return (

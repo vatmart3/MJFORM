@@ -254,7 +254,7 @@ export function Configurator() {
               </div>
               {slot && !slot.bookable ? (
                 mailto ? (
-                  <a className="btn btn-primary" href={mailto} data-magnetic="0.15">
+                  <a className="btn btn-primary" href={mailto}>
                     Demander ma place
                   </a>
                 ) : (
@@ -263,7 +263,7 @@ export function Configurator() {
                   </button>
                 )
               ) : (
-                <button className="btn btn-primary" type="button" disabled={!ready || paying} onClick={pay} data-magnetic="0.15">
+                <button className="btn btn-primary" type="button" disabled={!ready || paying} onClick={pay}>
                   {paying ? 'Ouverture du paiement…' : ready ? `Payer ${formatPrice(pricing!.price)}` : 'Choisissez votre atelier et la date'}
                 </button>
               )}

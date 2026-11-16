@@ -2,7 +2,7 @@
 
 Site de MJ FORM, la branche formation de MJ LAB : ateliers IA pour commerçants et entrepreneurs du Bassin de Thau (Sète).
 
-Vite + React + TypeScript · react-three-fiber + drei · GSAP ScrollTrigger + Lenis · Supabase · Stripe Checkout.
+Vite + React + TypeScript · Supabase · Stripe Checkout. Aucune bibliothèque d'animation : défilement natif, sans latence.
 
 ## Démarrer
 
@@ -66,5 +66,7 @@ Le catalogue est défini à deux endroits qui doivent rester identiques : `src/d
 ## Notes de conception
 
 - Charte MJAGENCY : blanc `#FFFFFF` et gris `#F5F5F7` en alternance, texte `#1D1D1F` / `#6E6E73`, un seul accent `#0071E3`. Pile SF Pro (`-apple-system`) avec repli Inter, logo Poppins Bold.
-- Le smartphone 3D est générique (aucune marque). Son écran est du vrai DOM projeté par `drei <Html transform>`, piloté par la progression du scroll. La 3D se charge au premier geste de l'utilisateur ; un téléphone CSS identique s'affiche avant et sert de repli sans WebGL.
-- `prefers-reduced-motion` : pas de Lenis, pas d'animations d'entrée, téléphone immobile ; le contenu des scènes reste piloté par le scroll.
+- Le smartphone est générique (aucune marque), dessiné en CSS et immobile. Son écran est du vrai DOM, piloté directement par la position du scroll (aucun lissage, aucune latence). Chaque scène occupe deux hauteurs d'écran : l'animation de l'écran se joue entre 10 et 70 % de la scène, puis le résultat reste affiché.
+- Aucun mouvement décoratif : pas de parallaxe, pas d'effet magnétique, pas de rebond. Les changements se font par fondus courts.
+- Écran de chargement présent dans le HTML (`index.html`), retiré dès que la page et les polices sont prêtes (600 ms minimum, 4 s maximum même sans JavaScript).
+- `prefers-reduced-motion` : aucun fondu ; le contenu des scènes reste piloté par le scroll.
