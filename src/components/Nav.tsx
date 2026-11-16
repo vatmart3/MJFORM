@@ -39,7 +39,12 @@ export function Nav() {
             ))}
           </ul>
         </nav>
-        <BookLink className="btn btn-primary btn-sm">Réserver</BookLink>
+        <div className="nav-actions">
+          <a className="btn btn-secondary btn-sm" href="/espace">
+            Se connecter
+          </a>
+          <BookLink className="btn btn-primary btn-sm">Réserver</BookLink>
+        </div>
       </div>
     </header>
   )

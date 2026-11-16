@@ -389,6 +389,11 @@ h4 {
 .logo .dot {
   color: var(--blue);
 }
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .nav-links {
   display: none;
   gap: 32px;
@@ -1571,5 +1576,21 @@ input[type='range']:active::-webkit-slider-thumb {
     gap: 6px;
     padding: 6px 11px;
     font-size: 12px;
+  }
+}
+/* Petits téléphones : logo et deux boutons tiennent sur une ligne */
+@media (max-width: 400px) {
+  .nav .wrap {
+    gap: 10px;
+  }
+  .nav .logo {
+    font-size: 18px;
+  }
+  .nav-actions {
+    gap: 6px;
+  }
+  .nav-actions .btn-sm {
+    padding: 0 12px;
+    font-size: 13px;
   }
 }
