@@ -64,13 +64,34 @@ export function slotsFor(atelierId: string, availability: Availability | null): 
 
 export const hasSession = (id: string) => SESSIONS.some((s) => s.id === id)
 
-export async function startCheckout(sessionId: string, atelierId: string): Promise<string> {
+export async function startCheckout(input: {
+  atelierId: string
+  format: 'presentiel' | 'online'
+  sessionId?: string
+  /** Paiement « en ligne » à déduire (passage au présentiel) */
+  upgradeFrom?: string
+}): Promise<string> {
   const r = await fetch('/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionId, atelierId }),
+    body: JSON.stringify(input),
   })
   const data = (await r.json().catch(() => ({}))) as { url?: string; error?: string }
   if (!r.ok || !data.url) throw new Error(data.error || 'checkout-failed')
   return data.url
+}
+
+export interface UpgradeQuote {
+  atelierId: string
+  paid: number
+  price: number
+  final: number
+}
+
+/** Prix du présentiel après déduction d'un achat « en ligne » (lien depuis l'espace stagiaire). */
+export async function fetchUpgradeQuote(from: string, atelierId: string): Promise<UpgradeQuote> {
+  const r = await fetch(`/api/upgrade-quote?from=${encodeURIComponent(from)}&atelier=${encodeURIComponent(atelierId)}`)
+  const data = (await r.json().catch(() => ({}))) as UpgradeQuote & { error?: string }
+  if (!r.ok) throw new Error(data.error || 'upgrade-failed')
+  return data
 }

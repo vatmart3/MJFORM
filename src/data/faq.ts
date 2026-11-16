@@ -22,6 +22,13 @@ export const FAQ: Array<{ q: string; a: string[] }> = [
     ],
   },
   {
+    q: 'Pourquoi le présentiel est-il moins cher ?',
+    a: [
+      'Parce qu’on vous forme en petit groupe : le coût est partagé. Et vous repartez avec l’accès en ligne en plus.',
+      'Le format en ligne est une licence individuelle, pour ceux qui ne peuvent pas se déplacer.',
+    ],
+  },
+  {
     q: 'Et si je dois annuler ?',
     a: [
       'Annulation 7 jours ou plus avant l’atelier : vous êtes remboursé intégralement.',

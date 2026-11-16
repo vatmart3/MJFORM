@@ -87,10 +87,25 @@ export interface Formation {
 export type FullModule = Omit<Module, 'lessons'> & { lessons: LessonContent[] }
 export type FullFormation = Omit<Formation, 'modules'> & { modules: FullModule[] }
 
+export type AccessFormat = 'presentiel' | 'online'
+
 export interface Enrollment {
   formationId: string
   source: EnrollmentSource
   createdAt: string
+  /** Format acheté sur le site (absent pour un accès donné par l'admin) */
+  format?: AccessFormat | null
+  /** Fin de l'accès (format en ligne : 12 mois). null = sans limite */
+  expiresAt?: string | null
+  /** Atelier du site acheté (pour le passage au présentiel) */
+  siteAtelier?: string | null
+  /** Présentiel : session réservée */
+  sessionLabel?: string | null
+  sessionAddress?: string | null
+  /** Paiement Stripe d'origine (déduit lors du passage au présentiel) */
+  stripeSessionId?: string | null
+  /** Montant payé, en euros */
+  amountPaid?: number | null
 }
 
 export interface LessonProgress {

@@ -6,6 +6,7 @@ import { formationProgress, resumeLesson, sortForResume } from '../data/logic'
 import { useClientData } from '../state'
 import { EmptyState, Page, ProgressBar, ProgressRing, itemVariants, listVariants } from '../ui/kit'
 import { PageSkeleton } from './common'
+import { AccessNotes, FormatBadge } from './Access'
 
 export function MyFormations() {
   const { data } = useClientData()
@@ -26,6 +27,8 @@ export function MyFormations() {
           }
         />
       ) : (
+        <>
+        <AccessNotes enrollments={data.enrollments} formations={data.formations} />
         <motion.ul className="flist" variants={listVariants} initial="hidden" animate="show">
           {owned.map((f) => {
             const p = formationProgress(f, data.progress)
@@ -38,8 +41,9 @@ export function MyFormations() {
                     <span style={{ fontSize: 12, fontWeight: 600 }}>{Math.round(p.ratio * 100)}%</span>
                   </ProgressRing>
                   <div className="frow-body">
-                    <span className="frow-meta">
+                    <span className="frow-meta row wrap" style={{ gap: 8 }}>
                       {f.level} · {f.duration}
+                      <FormatBadge e={data.enrollments.find((e) => e.formationId === f.id)} />
                     </span>
                     <strong className="frow-title">{f.title}</strong>
                     <div className="frow-bar">
@@ -55,6 +59,7 @@ export function MyFormations() {
             )
           })}
         </motion.ul>
+        </>
       )}
     </Page>
   )

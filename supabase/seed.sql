@@ -129,6 +129,15 @@ insert into public.workshops (id, external_id, title, starts_at, ends_at, locati
   ('w-2027-01-25', '2027-01-25', 'Atelier MJ FORM', '2027-01-25T19:00:00+01:00', null, 'Sète', 8, '/#reserver')
 on conflict (id) do nothing;
 
+-- ——— Ateliers du site qui ouvrent chaque formation (achat présentiel ou en ligne) ———
+-- Nécessite la migration 20261120000000_formats.sql. Les packs ouvrent toutes les formations de leur niveau.
+update public.formations set site_ateliers = array['fetes', 'ia-comptoir', 'google-avis', 'reseaux', 'zero-paperasse', 'pack-n1']
+  where id = 'f-initiation' and site_ateliers = '{}';
+update public.formations set site_ateliers = array['maitriser-claude', 'pack-n2']
+  where id = 'f-claude' and site_ateliers = '{}';
+update public.formations set site_ateliers = array['agent-ia', 'automatiser', 'solution-sans-coder', 'pack-n2']
+  where id = 'f-agents' and site_ateliers = '{}';
+
 commit;
 
 -- ———————————————————————————————————————————————————————————————

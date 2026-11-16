@@ -1,4 +1,4 @@
-import type { LevelId } from '../data/ateliers'
+import type { FormatId, LevelId } from '../data/ateliers'
 import { useSyncExternalStore } from 'react'
 
 /** Mini-store sans dépendance : la progression du scroll 3D et la sélection du configurateur. */
@@ -63,3 +63,6 @@ export interface Selection {
   sessionId: string | null
 }
 export const selection = createStore<Selection>({ level: null, atelierId: null, sessionId: null })
+
+/** Format choisi : le présentiel est recommandé et sélectionné par défaut. */
+export const chosenFormat = createStore<FormatId>('presentiel')

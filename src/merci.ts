@@ -5,11 +5,15 @@ import { ADDRESS_FALLBACK } from './data/sessions'
 interface Summary {
   atelier: string
   duration: string
-  date: string
-  hours: string
-  address: string | null
   amount: number
   pack: boolean
+  format: 'presentiel' | 'online'
+  /** Présentiel */
+  date?: string
+  hours?: string
+  address?: string | null
+  /** En ligne : fin de l'accès (ISO) */
+  accessUntil?: string
 }
 
 const field = (name: string) => document.querySelector<HTMLElement>(`[data-field="${name}"]`)
@@ -26,10 +30,22 @@ if (id) {
     .then((s) => {
       if (!s) return
       show('atelier', `${s.atelier} · ${s.duration}`)
-      show('date', `${s.date} · ${s.hours}`)
+      if (s.format === 'online') {
+        // En ligne : pas de date ni d'adresse, accès 12 mois
+        show('format', 'En ligne')
+        field('address-row')!.hidden = true
+        field('live-note')!.hidden = true
+        const until = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(s.accessUntil!))
+        show('access', `Ouvert dès maintenant, jusqu’au ${until}`)
+        document.querySelector('h1')!.innerHTML = 'C’est ouvert.<br /><span style="color: var(--ink-2)">À vous de jouer.</span>'
+      } else {
+        show('format', 'En présentiel · contenu en ligne inclus')
+        show('date', `${s.date} · ${s.hours}`)
+      }
       show('amount', new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(s.amount).replace(',00', ''))
       if (s.pack) show('pack-note')
       const dd = field('address')!
+      if (s.format === 'online') return
       if (s.address) {
         // Adresse renseignée (ADRESSE_ATELIER) : lien vers l'itinéraire
         const a = document.createElement('a')

@@ -21,7 +21,7 @@ import type {
   WorkshopBooking,
 } from './types'
 
-const KEY = 'mjform-espace-demo-v1'
+const KEY = 'mjform-espace-demo-v2'
 const SESSION_KEY = 'mjform-espace-demo-session'
 
 type Owned<T> = T & { userId: string }
@@ -51,6 +51,7 @@ const now = () => new Date().toISOString()
 const daysFromNow = (d: number) => new Date(Date.now() + d * 86_400_000).toISOString()
 const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000).toISOString()
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v))
+const isActive = (e: { expiresAt?: string | null }) => !e.expiresAt || new Date(e.expiresAt).getTime() > Date.now()
 
 function seed(): DB {
   const formations = clone(SEED_FORMATIONS) as FullFormation[]
@@ -59,7 +60,31 @@ function seed(): DB {
     users: clone(SEED_USERS),
     formations,
     enrollments: [
-      { userId: 'u-camille', formationId: initiation.id, source: 'workshop', createdAt: daysAgo(20) },
+      {
+        userId: 'u-camille',
+        formationId: initiation.id,
+        source: 'workshop',
+        createdAt: daysAgo(20),
+        format: 'presentiel',
+        expiresAt: null,
+        siteAtelier: 'fetes',
+        sessionLabel: 'Vendredi 4 décembre 2026 · 18 h 30 – 21 h 30',
+        sessionAddress: 'Sète · l’adresse exacte vous est envoyée par SMS la veille',
+        stripeSessionId: 'cs_demo_camille_fetes',
+        amountPaid: 49,
+      },
+      // Formation suivie au format en ligne : affiche le bandeau « Passez en présentiel »
+      {
+        userId: 'u-camille',
+        formationId: 'f-agents',
+        source: 'purchase',
+        createdAt: daysAgo(10),
+        format: 'online',
+        expiresAt: daysFromNow(355),
+        siteAtelier: 'agent-ia',
+        stripeSessionId: 'cs_demo_camille_agents',
+        amountPaid: 399,
+      },
       { userId: 'u-lucas', formationId: initiation.id, source: 'purchase', createdAt: daysAgo(12) },
       { userId: 'u-sophie', formationId: initiation.id, source: 'purchase', createdAt: daysAgo(8) },
       { userId: 'u-sophie', formationId: 'f-claude', source: 'purchase', createdAt: daysAgo(3) },
@@ -599,7 +624,8 @@ export const demoBackend: Backend = {
   },
   async listEnrollments() {
     const u = requireUser()
-    return latency(db().enrollments.filter((e) => e.userId === u.id).map(({ userId: _u, ...e }) => e))
+    // Les accès en ligne expirés ne comptent plus
+    return latency(db().enrollments.filter((e) => e.userId === u.id && isActive(e)).map(({ userId: _u, ...e }) => e))
   },
   async listProgress() {
     const u = requireUser()
@@ -609,7 +635,7 @@ export const demoBackend: Backend = {
     const u = requireUser()
     const hit = findLesson(lessonId)
     if (!hit || hit.l.status !== 'published') throw new Error('not-found')
-    const owned = u.role === 'admin' || db().enrollments.some((e) => e.userId === u.id && e.formationId === hit.f.id)
+    const owned = u.role === 'admin' || db().enrollments.some((e) => e.userId === u.id && e.formationId === hit.f.id && isActive(e))
     if (!owned) throw new AccessError()
     return latency(clone(hit.l))
   },

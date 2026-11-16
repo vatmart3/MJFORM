@@ -9,6 +9,9 @@ const forceDemo = import.meta.env.VITE_ESPACE_DEMO === '1'
 
 export const supabaseConfigured = Boolean(url && key) && !forceDemo
 
+/** Production sans Supabase : l'espace n'est pas encore ouvert (pas d'espace de test public). */
+export const espaceOpen = supabaseConfigured || __ESPACE_DEMO__ || forceDemo
+
 let instance: Backend | null = supabaseConfigured ? null : demoBackend
 let pending: Promise<Backend> | null = null
 

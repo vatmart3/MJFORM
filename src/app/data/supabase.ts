@@ -679,12 +679,37 @@ export function createSupabaseBackend(url: string, key: string): Backend {
     },
     async listEnrollments() {
       const uid = await requireUid()
-      const rows = ok(await sb.from('enrollments').select('formation_id, source, created_at').eq('user_id', uid)) as {
+      // Les accès en ligne expirés ne comptent plus (même règle que has_access côté base)
+      const rows = ok(
+        await sb
+          .from('enrollments')
+          .select('formation_id, source, created_at, format, expires_at, site_atelier, session_label, session_address, stripe_session_id, amount_cents')
+          .eq('user_id', uid)
+          .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`),
+      ) as {
         formation_id: string
         source: EnrollmentSource
         created_at: string
+        format: 'presentiel' | 'online' | null
+        expires_at: string | null
+        site_atelier: string | null
+        session_label: string | null
+        session_address: string | null
+        stripe_session_id: string | null
+        amount_cents: number | null
       }[]
-      return rows.map((e) => ({ formationId: e.formation_id, source: e.source, createdAt: e.created_at }))
+      return rows.map((e) => ({
+        formationId: e.formation_id,
+        source: e.source,
+        createdAt: e.created_at,
+        format: e.format,
+        expiresAt: e.expires_at,
+        siteAtelier: e.site_atelier,
+        sessionLabel: e.session_label,
+        sessionAddress: e.session_address,
+        stripeSessionId: e.stripe_session_id,
+        amountPaid: e.amount_cents == null ? null : e.amount_cents / 100,
+      }))
     },
     async listProgress() {
       const uid = await requireUid()

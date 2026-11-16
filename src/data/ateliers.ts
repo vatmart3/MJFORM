@@ -205,5 +205,40 @@ export const regularAteliers = () => ATELIERS.filter((a) => a.level !== 'special
 export const SPECIAL = ATELIERS.find((a) => a.level === 'special')!
 export const atelierById = (id: string) => ATELIERS.find((a) => a.id === id)
 
+// ——— Formats ———
+// « En présentiel » (recommandé) : l'atelier à Sète + suivi 14 jours + tout le contenu en ligne.
+// « En ligne » : le contenu (vidéos, supports, prompts) pendant 12 mois, à son rythme. +50 €.
+export type FormatId = 'presentiel' | 'online'
+export const ONLINE_SURCHARGE = 50
+export const ONLINE_ACCESS_MONTHS = 12
+
+export const FORMATS: Record<FormatId, { label: string; short: string; tagline: string }> = {
+  presentiel: {
+    label: 'En présentiel',
+    short: 'Présentiel',
+    tagline: 'L’atelier à Sète, 2 formateurs pour 8, suivi 14 jours et le contenu en ligne inclus.',
+  },
+  online: {
+    label: 'En ligne',
+    short: 'En ligne',
+    tagline: 'Les vidéos, supports et prompts dans votre espace pendant 12 mois, à votre rythme.',
+  },
+}
+
+/** L'atelier spécial fêtes est un événement daté : présentiel uniquement. */
+export const hasOnline = (a: Atelier) => a.level !== 'special'
+
+export const priceOf = (a: Atelier, format: FormatId) => (format === 'online' ? a.price + ONLINE_SURCHARGE : a.price)
+
+/** Ateliers contenus dans chaque pack (4 par niveau) */
+const PACK_SIZE = 4
+
+/** Prix barré éventuel des packs : somme des 4 ateliers achetés un par un, dans le même format. */
+export const compareAtOf = (a: Atelier, format: FormatId) =>
+  a.compareAt == null ? undefined : format === 'online' ? a.compareAt + ONLINE_SURCHARGE * PACK_SIZE : a.compareAt
+
+/** Étiquette (lookup key) du prix Stripe d'un couple atelier × format, ex. mjform_reseaux_online */
+export const lookupKey = (atelierId: string, format: FormatId) => `mjform_${atelierId.replace(/-/g, '_')}_${format}`
+
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n)

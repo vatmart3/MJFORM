@@ -62,6 +62,34 @@ Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décemb
 - Vidéo de présentation (`src/components/Film.tsx`, fichiers dans `public/video/`) : lecture automatique sans le son et en boucle quand elle est visible, pause hors de l'écran, bouton « Activer le son ». Rien n'est téléchargé tant qu'elle n'approche pas de l'écran ; 720p sur mobile (3,3 Mo), 1080p sur ordinateur (7,2 Mo). L'image d'aperçu sert aussi d'image de partage (Open Graph) et la vidéo est déclarée en JSON-LD `VideoObject`. Pour la remplacer, réencoder avec `ffmpeg -i source.mp4 -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart` (ajouter `-vf scale=-2:720` pour la version mobile).
 - `prefers-reduced-motion` : aucun fondu ; le contenu des scènes reste piloté par le scroll.
 
+## Formats : en présentiel ou en ligne
+
+Chaque atelier existe en deux formats (`src/data/ateliers.ts`) :
+
+| | En présentiel (recommandé, par défaut) | En ligne |
+| --- | --- | --- |
+| Contenu | Atelier à Sète, 2 formateurs pour 8, suivi 14 jours, **et** le contenu en ligne | Vidéos, supports et prompts pendant 12 mois |
+| Prix | 129 à 990 € | +50 € par atelier ou pack (179 à 1 040 €) |
+| Date | Oui | Non |
+
+L'atelier spécial fêtes n'existe qu'en présentiel.
+
+- **Réservation** : étape « Quel format ? » entre l'atelier et la date. En ligne, la date disparaît et un encart propose le présentiel (prochaine date, places réelles lues dans `/api/availability`, rien n'est affiché si l'information manque).
+- **Prix Stripe** : un produit et un prix par couple atelier × format (21 en tout), retrouvés par leur étiquette `mjform_<atelier>_<format>`. Pour les créer ou les mettre à jour (relançable, sans doublon) :
+
+  ```bash
+  STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.mjs --dry-run
+  ```
+
+  ```bash
+  STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-setup.mjs
+  ```
+
+  Recommencer avec la clé `sk_live_...` avant l'ouverture des ventes réelles.
+- **Après paiement** (webhook `/api/stripe-webhook`) : le compte stagiaire est créé si besoin (e-mail d'activation par lien magique, variable `SITE_URL` pour l'adresse de retour), puis les droits sont ouverts selon le format (`grant_site_purchase`, migration `20261120000000_formats.sql`) : présentiel = accès sans limite + date et adresse de la session ; en ligne = accès 12 mois. Les formations ouvertes par chaque atelier sont listées dans `formations.site_ateliers` (voir `supabase/seed.sql`).
+- **Passer en présentiel** : dans l'espace, un stagiaire « en ligne » voit « Passez en présentiel : on déduit ce que vous avez payé ». Le lien ouvre la réservation avec le prix présentiel moins le montant déjà payé (minimum 0 €, vérifié par Stripe via `/api/upgrade-quote`). Une déduction ne sert qu'une fois.
+- **Production** : sur le déploiement de production Vercel, l'espace de test est désactivé. Sans Supabase, `/espace` affiche « Votre espace ouvre bientôt ».
+
 ## Espace client et administration
 
 - `/espace` : espace client (tableau de bord, mes formations, lecteur de leçons, à débloquer, parrainage, profil).
@@ -92,7 +120,7 @@ L'espace client (`/espace/`) et l'administration (`/admin/`) fonctionnent en deu
 ### 1. Projet Supabase
 
 1. Créer un projet Supabase **dédié** à MJ FORM (région Europe, ex. Paris ou Francfort). Ne pas réutiliser un projet existant.
-2. SQL Editor : exécuter `supabase/migrations/20261116120000_espace_client.sql`, puis `supabase/seed.sql` (les 3 formations et les ateliers du site). Avec la CLI : `supabase link` puis `supabase db push`.
+2. SQL Editor : exécuter `supabase/migrations/20261116120000_espace_client.sql`, puis `supabase/migrations/20261120000000_formats.sql`, puis `supabase/seed.sql` (les 3 formations et les ateliers du site). Avec la CLI : `supabase link` puis `supabase db push`.
 3. Authentication → URL Configuration : *Site URL* `https://<domaine>/espace/`, *Redirect URLs* `https://<domaine>/espace/` (ajouter aussi `http://localhost:5173/espace/` pour le développement).
 4. Authentication → Providers :
    - **Email** activé (lien magique). Les nouveaux comptes sont créés au premier lien.

@@ -1,10 +1,32 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CONTACT } from '../config'
-import { LEVELS, SPECIAL, atelierById, ateliersOf, formatPrice, type LevelId } from '../data/ateliers'
+import {
+  FORMATS,
+  LEVELS,
+  ONLINE_SURCHARGE,
+  SPECIAL,
+  atelierById,
+  ateliersOf,
+  compareAtOf,
+  formatPrice,
+  hasOnline,
+  priceOf,
+  type FormatId,
+  type LevelId,
+} from '../data/ateliers'
 import { PILOT_SESSION_ID, sessionById, upcomingSessions } from '../data/sessions'
 import { scrollToTarget } from '../lib/motion'
-import { formatDay, formatHours, slotsFor, startCheckout, useAvailability, type SessionSlot } from '../lib/sessions'
-import { selection, useStoreSelector } from '../lib/store'
+import {
+  fetchUpgradeQuote,
+  formatDay,
+  formatHours,
+  slotsFor,
+  startCheckout,
+  useAvailability,
+  type SessionSlot,
+  type UpgradeQuote,
+} from '../lib/sessions'
+import { chosenFormat, selection, useStoreSelector } from '../lib/store'
 import { Eyebrow, SplitTitle } from './ui'
 
 const PILOT_SOURCES = ['flyer1', 'flyer2', 'flyer3']
@@ -24,10 +46,17 @@ const ERRORS: Record<string, string> = {
   'session-past': 'Cette date est passée. Choisissez une autre date.',
   'not-configured': `Le paiement en ligne n’est pas encore ouvert. Appelez-nous au ${CONTACT.phone} pour réserver.`,
   'price-missing': `Le paiement en ligne n’est pas encore ouvert. Appelez-nous au ${CONTACT.phone} pour réserver.`,
+  'upgrade-used': 'Ce paiement a déjà servi à passer en présentiel.',
+  'upgrade-invalid': 'Ce lien de passage au présentiel n’est pas valable pour cet atelier.',
 }
+
+const placesLeft = (n: number) => (n === 1 ? 'il reste 1 place' : `il reste ${n} places`)
 
 export function Configurator() {
   const sel = useStoreSelector(selection, (s) => s)
+  const format = useStoreSelector(chosenFormat, (f) => f)
+  // Passage du format en ligne au présentiel (lien depuis l'espace stagiaire)
+  const [upgrade, setUpgrade] = useState<{ from: string; quote: UpgradeQuote | null; error: string | null } | null>(null)
   const { availability, loading } = useAvailability()
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState<string | null>(null)
@@ -38,6 +67,11 @@ export function Configurator() {
   const slot = available.find((s) => s.id === sel.sessionId)
   const pilot = sessionById(PILOT_SESSION_ID)!
   const pilotOpen = upcomingSessions().some((s) => s.id === PILOT_SESSION_ID)
+  const online = format === 'online' && Boolean(atelier && hasOnline(atelier))
+  const upgradeQuote = upgrade?.quote && upgrade.quote.atelierId === atelier?.id && format === 'presentiel' ? upgrade.quote : null
+  const total = atelier ? (upgradeQuote ? upgradeQuote.final : priceOf(atelier, online ? 'online' : 'presentiel')) : 0
+  // Prochaine date en présentiel avec des places (pour l'encart du format en ligne)
+  const nextLive = available.find((s) => s.seatsLeft !== 0)
 
   // Flyers (utm_source=flyer1|flyer2|flyer3) ou ?pilote : l'atelier spécial fêtes est présélectionné
   // et la page s'ouvre directement sur la réservation.
@@ -52,6 +86,30 @@ export function Configurator() {
     window.addEventListener('mjform:ready', go, { once: true })
     return () => window.removeEventListener('mjform:ready', go)
   }, [pilotOpen])
+
+  // Lien « Passez en présentiel » : ?upgrade=<paiement en ligne>&atelier=<id>
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const from = params.get('upgrade')
+    const a = atelierById(params.get('atelier') ?? '')
+    if (!from || !a) return
+    selection.set({ level: a.level, atelierId: a.id, sessionId: null })
+    chosenFormat.set('presentiel')
+    setUpgrade({ from, quote: null, error: null })
+    if (from.startsWith('cs_demo_')) {
+      // Espace de test : aucun paiement réel à vérifier, la déduction est calculée ici
+      const paid = Math.max(0, Number(params.get('paid')) || 0)
+      const price = priceOf(a, 'presentiel')
+      setUpgrade({ from, quote: { atelierId: a.id, paid, price, final: Math.max(0, price - paid) }, error: null })
+    } else
+    fetchUpgradeQuote(from, a.id)
+      .then((quote) => setUpgrade({ from, quote, error: null }))
+      .catch((e) => setUpgrade({ from, quote: null, error: (e as Error).message }))
+    const go = () => scrollToTarget('#reserver', -64, true)
+    requestAnimationFrame(go)
+    window.addEventListener('mjform:ready', go, { once: true })
+    return () => window.removeEventListener('mjform:ready', go)
+  }, [])
 
   // Une date pré-choisie n'est gardée que si elle est proposée pour l'atelier
   useEffect(() => {
@@ -68,16 +126,21 @@ export function Configurator() {
   const chooseLevel = (l: LevelId) => selection.set({ level: l, atelierId: null, sessionId: null })
   const chooseSpecial = () => selection.set({ level: 'special', atelierId: SPECIAL.id, sessionId: PILOT_SESSION_ID })
   const chooseAtelier = (id: string) => selection.set((s) => ({ ...s, atelierId: id, sessionId: null }))
+  const chooseFormat = (f: FormatId) => chosenFormat.set(f)
   const chooseSlot = (id: string) => selection.set((s) => ({ ...s, sessionId: id }))
 
-  const ready = Boolean(atelier && slot && slot.seatsLeft !== 0)
+  const ready = Boolean(atelier && (online || (slot && slot.seatsLeft !== 0)))
 
   const pay = async () => {
-    if (!atelier || !slot) return
+    if (!atelier || !ready) return
     setPaying(true)
     setPayError(null)
     try {
-      const url = await startCheckout(slot.id, atelier.id)
+      const url = await startCheckout(
+        online
+          ? { atelierId: atelier.id, format: 'online' }
+          : { atelierId: atelier.id, format: 'presentiel', sessionId: slot!.id, upgradeFrom: upgradeQuote ? upgrade!.from : undefined },
+      )
       window.location.assign(url)
     } catch (e) {
       const code = (e as Error).message
@@ -125,12 +188,21 @@ export function Configurator() {
             {atelier ? (
               <div className="swap" key={'p' + atelier.id} style={{ marginTop: 32 }}>
                 <div className="big-price">
-                  {atelier.compareAt ? <s className="strike">{formatPrice(atelier.compareAt)}</s> : null}
-                  {formatPrice(atelier.price)}
+                  {upgradeQuote ? (
+                    <s className="strike">{formatPrice(upgradeQuote.price)}</s>
+                  ) : compareAtOf(atelier, online ? 'online' : 'presentiel') ? (
+                    <s className="strike">{formatPrice(compareAtOf(atelier, online ? 'online' : 'presentiel')!)}</s>
+                  ) : null}
+                  {formatPrice(total)}
                 </div>
+                {upgradeQuote ? <div className="when">Déjà payé en ligne : {formatPrice(upgradeQuote.paid)}, déduit.</div> : null}
                 {atelier.priceNote ? <div className="when">{atelier.priceNote}</div> : null}
                 <div className="when">
-                  {slot ? `${formatDay(slot.startsAt)} · ${formatHours(slot.session)} · Sète` : 'Choisissez une date'}
+                  {online
+                    ? 'En ligne · accès 12 mois, à votre rythme'
+                    : slot
+                      ? `${formatDay(slot.startsAt)} · ${formatHours(slot.session)} · Sète`
+                      : 'Choisissez une date'}
                 </div>
               </div>
             ) : null}
@@ -203,8 +275,10 @@ export function Configurator() {
                       <span className="s">{a.duration}</span>
                     </span>
                     <span className="p">
-                      {a.compareAt ? <s className="strike">{formatPrice(a.compareAt)}</s> : null}
-                      {formatPrice(a.price)}
+                      {compareAtOf(a, format === 'online' && hasOnline(a) ? 'online' : 'presentiel') ? (
+                        <s className="strike">{formatPrice(compareAtOf(a, format === 'online' && hasOnline(a) ? 'online' : 'presentiel')!)}</s>
+                      ) : null}
+                      {formatPrice(priceOf(a, format === 'online' && hasOnline(a) ? 'online' : 'presentiel'))}
                       {a.priceNote ? <span className="s">{a.priceNote}</span> : null}
                     </span>
                   </button>
@@ -212,10 +286,56 @@ export function Configurator() {
               </div>
             </div>
 
-            {/* 3. Date */}
+            {/* 3. Format */}
             <div className="cstep" aria-disabled={!atelier}>
               <h3>
-                <span className="n">3.</span>Quelle date ?
+                <span className="n">3.</span>Quel format ?
+              </h3>
+              <div className="options" role="radiogroup" aria-label="Format">
+                {(['presentiel', 'online'] as const).map((f) => {
+                  const unavailable = f === 'online' && atelier != null && !hasOnline(atelier)
+                  return (
+                    <button
+                      key={f}
+                      type="button"
+                      role="radio"
+                      className="opt"
+                      aria-checked={(online ? 'online' : 'presentiel') === f}
+                      onClick={() => chooseFormat(f)}
+                      disabled={!atelier || unavailable}
+                    >
+                      <span>
+                        <span className="t">
+                          {FORMATS[f].label}
+                          {f === 'presentiel' ? <span className="reco">Recommandé</span> : null}
+                        </span>
+                        <span className="s">{unavailable ? 'Cet atelier se suit uniquement en présentiel.' : FORMATS[f].tagline}</span>
+                      </span>
+                      <span className="p">
+                        {atelier ? (unavailable ? '—' : formatPrice(priceOf(atelier, f))) : f === 'online' ? `+${ONLINE_SURCHARGE} €` : ''}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+              {online && nextLive ? (
+                <div className="nudge" role="note">
+                  <p>
+                    Pour {ONLINE_SURCHARGE} € de moins, venez en présentiel le {formatDay(nextLive.startsAt)}
+                    {nextLive.seatsLeft != null ? ` — ${placesLeft(nextLive.seatsLeft)}.` : '.'}
+                  </p>
+                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => chooseFormat('presentiel')}>
+                    Choisir le présentiel
+                  </button>
+                </div>
+              ) : null}
+            </div>
+
+            {/* 4. Date (présentiel uniquement) */}
+            {online ? null : (
+            <div className="cstep" aria-disabled={!atelier}>
+              <h3>
+                <span className="n">4.</span>Quelle date ?
               </h3>
               {atelier?.pack ? (
                 <p className="muted" style={{ margin: '-6px 0 14px', fontSize: 15 }}>
@@ -250,24 +370,37 @@ export function Configurator() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Paiement */}
             <div className="config-pay">
               <div className="total">
                 <span>Total</span>
-                <span>{atelier ? formatPrice(atelier.price) : '—'}</span>
+                <span>{atelier ? formatPrice(total) : '—'}</span>
               </div>
               <button className="btn btn-primary" type="button" disabled={!ready || paying} onClick={pay}>
-                {paying ? 'Ouverture du paiement…' : ready ? `Payer ${formatPrice(atelier!.price)}` : 'Choisissez votre atelier et la date'}
+                {paying
+                  ? 'Ouverture du paiement…'
+                  : ready
+                    ? total === 0
+                      ? 'Confirmer ma place'
+                      : `Payer ${formatPrice(total)}`
+                    : 'Choisissez votre atelier et la date'}
               </button>
+              {upgrade?.error ? (
+                <p className="error" role="alert">
+                  {ERRORS[upgrade.error] ?? `La déduction n’a pas pu être calculée. Appelez-nous au ${CONTACT.phone}, nous l’appliquons à la main.`}
+                </p>
+              ) : null}
               {payError ? (
                 <p className="error" role="alert">
                   {payError}
                 </p>
               ) : null}
               <p className="fine">
-                Paiement sécurisé par Stripe. Prix nets, TVA non applicable (art. 293 B du CGI). Annulation 7 jours ou plus
-                avant : remboursement intégral ; moins de 7 jours : report gratuit.
+                {online
+                  ? 'Paiement sécurisé par Stripe. Prix nets, TVA non applicable (art. 293 B du CGI). Accès ouvert dès le paiement, pendant 12 mois.'
+                  : 'Paiement sécurisé par Stripe. Prix nets, TVA non applicable (art. 293 B du CGI). Annulation 7 jours ou plus avant : remboursement intégral ; moins de 7 jours : report gratuit.'}
               </p>
             </div>
           </div>

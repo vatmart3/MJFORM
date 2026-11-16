@@ -9,6 +9,7 @@ import type { Workshop } from '../data/types'
 import { useBackend, useClientData, useSession } from '../state'
 import { Button, Counter, EmptyState, ProgressBar, ProgressRing, itemVariants, listVariants } from '../ui/kit'
 import { PageSkeleton, plural, useQuote } from './common'
+import { AccessNotes } from './Access'
 
 const Logo3D = lazy(() => import('./Logo3D'))
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
@@ -100,6 +101,10 @@ export function Dashboard() {
           />
         </motion.div>
       )}
+
+      <motion.div variants={itemVariants}>
+        <AccessNotes enrollments={data.enrollments} formations={data.formations} />
+      </motion.div>
 
       <motion.dl variants={itemVariants} className="figures" aria-label="Vos indicateurs">
         <div>

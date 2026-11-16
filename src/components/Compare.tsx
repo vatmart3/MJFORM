@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ATELIERS, LEVELS, ateliersOf, formatPrice, type Atelier, type LevelId } from '../data/ateliers'
 import { BookLink, Eyebrow, SectionCta, SplitTitle } from './ui'
+import { FormatCompare } from './FormatCompare'
 
 const SPECS: Array<{ label: string; n1: string; n2: string }> = [
   { label: 'Pour qui', n1: 'Vous débutez avec l’IA', n2: 'Vous utilisez déjà ChatGPT ou Claude' },
@@ -112,6 +113,7 @@ export function Compare() {
           Prix nets · TVA non applicable, art. 293 B du CGI. Par personne. Les {ATELIERS.filter((a) => a.pack).length} packs regroupent les ateliers de leur niveau ; le prix
           barré est la somme des ateliers achetés un par un.
         </p>
+        <FormatCompare />
         <SectionCta secondary={{ href: '#temps', label: 'Calculer le temps gagné' }} />
       </div>
     </section>
