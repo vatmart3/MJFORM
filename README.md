@@ -42,7 +42,7 @@ Pour tester en local : mettre ces variables dans `.env.local`, puis `npm run dev
 
 ### Sessions
 
-Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décembre 2026, puis 15 et 25 janvier 2027). Les dates passées disparaissent d'elles-mêmes. Adresse affichée sur `/merci` et dans Stripe : `ADDRESS` dans le même fichier.
+Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décembre 2026, puis 15 et 25 janvier 2027). Les dates passées disparaissent d'elles-mêmes. Adresse de l'atelier affichée sur `/merci` et dans Stripe : variable d'environnement `ADRESSE_ATELIER` (vide = « Sète · l’adresse exacte vous est envoyée par SMS la veille »).
 
 ### Liens des flyers
 
@@ -51,7 +51,7 @@ Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décemb
 ## À compléter avant la mise en ligne
 
 - Avis : la section est masquée (`SHOW_REVIEWS` dans `src/config.ts`). Remplacer les emplacements de `src/components/Reviews.tsx` par de vrais avis, puis passer le drapeau à `true`.
-- CGV : médiateur de la consommation et clause de rétractation à valider.
+- CGV : clause de rétractation à valider.
 
 ## Notes de conception
 

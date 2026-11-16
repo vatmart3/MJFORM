@@ -5,7 +5,7 @@
 import Stripe from 'stripe'
 import { atelierById } from '../../src/data/ateliers.js'
 import {
-  ADDRESS,
+  ADDRESS_FALLBACK,
   formatDay,
   formatHours,
   priceEnvName,
@@ -20,6 +20,9 @@ const SINCE = Math.floor(new Date('2026-11-01T00:00:00Z').getTime() / 1000)
 const HOLD_SECONDS = 30 * 60 + 30
 
 type Env = Record<string, string | undefined>
+
+/** Adresse de l'atelier : variable d'environnement ADRESSE_ATELIER, ou null si elle est vide. */
+export const atelierAddress = (env: Env = process.env) => env.ADRESSE_ATELIER?.trim() || null
 
 export class BookingError extends Error {
   constructor(
@@ -103,6 +106,7 @@ export async function createCheckout(
 
   const start = new Date(session.start)
   const when = `${formatDay(start)} · ${formatHours(session)}`
+  const where = atelierAddress(env) ?? ADDRESS_FALLBACK
   const metadata = { slot: key, session: session.id, atelier: atelier.id }
 
   const checkout = await stripe.checkout.sessions.create({
@@ -116,13 +120,13 @@ export async function createCheckout(
     invoice_creation: {
       enabled: true,
       invoice_data: {
-        description: `${atelier.name} · ${when} · ${ADDRESS.line}, ${ADDRESS.city}`,
+        description: `${atelier.name} · ${when} · ${where}`,
         footer: 'TVA non applicable, art. 293 B du CGI',
         metadata,
       },
     },
     custom_text: {
-      submit: { message: `${atelier.name} · ${when} · ${ADDRESS.line}, ${ADDRESS.city}` },
+      submit: { message: `${atelier.name} · ${when} · ${where}` },
     },
     expires_at: Math.floor(Date.now() / 1000) + HOLD_SECONDS,
     success_url: `${origin}/merci/?session_id={CHECKOUT_SESSION_ID}`,
@@ -133,7 +137,7 @@ export async function createCheckout(
 }
 
 /** Récapitulatif affiché sur /merci après paiement. */
-export async function bookingSummary(stripe: Stripe, id: string) {
+export async function bookingSummary(stripe: Stripe, id: string, env: Env = process.env) {
   if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(id)) throw new BookingError('bad-request', 400)
   const cs = await stripe.checkout.sessions.retrieve(id)
   if (cs.status !== 'complete' || cs.payment_status !== 'paid') throw new BookingError('not-paid', 404)
@@ -145,7 +149,8 @@ export async function bookingSummary(stripe: Stripe, id: string) {
     duration: atelier.duration,
     date: formatDay(new Date(session.start)),
     hours: formatHours(session),
-    address: `${ADDRESS.line}, ${ADDRESS.city}`,
+    /** null : l'adresse n'est pas encore communiquée (texte de repli affiché) */
+    address: atelierAddress(env),
     amount: (cs.amount_total ?? 0) / 100,
     pack: Boolean(atelier.pack),
   }

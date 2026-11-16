@@ -1,12 +1,13 @@
 // Page /merci : récapitule la réservation payée (atelier, date, adresse) à partir de la session Stripe.
 import './page'
+import { ADDRESS_FALLBACK } from './data/sessions'
 
 interface Summary {
   atelier: string
   duration: string
   date: string
   hours: string
-  address: string
+  address: string | null
   amount: number
   pack: boolean
 }
@@ -28,6 +29,18 @@ if (id) {
       show('date', `${s.date} · ${s.hours}`)
       show('amount', new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(s.amount).replace(',00', ''))
       if (s.pack) show('pack-note')
+      const dd = field('address')!
+      if (s.address) {
+        // Adresse renseignée (ADRESSE_ATELIER) : lien vers l'itinéraire
+        const a = document.createElement('a')
+        a.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}`
+        a.target = '_blank'
+        a.rel = 'noopener'
+        a.textContent = s.address
+        dd.replaceChildren(a)
+      } else {
+        dd.textContent = ADDRESS_FALLBACK
+      }
     })
     .catch(() => {})
 }

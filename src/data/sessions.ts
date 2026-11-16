@@ -2,10 +2,8 @@
 // Aucune dépendance au navigateur ni à Vite : ce fichier est aussi importé côté serveur.
 import { regularAteliers } from './ateliers.js'
 
-export const ADDRESS = {
-  line: '54 rue Marceau',
-  city: '34200 Sète',
-}
+/** Adresse affichée quand la variable ADRESSE_ATELIER n'est pas renseignée. */
+export const ADDRESS_FALLBACK = 'Sète · l’adresse exacte vous est envoyée par SMS la veille'
 
 export interface Session {
   id: string
