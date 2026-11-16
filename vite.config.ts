@@ -2,6 +2,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 import { ATELIERS } from './src/data/ateliers.ts'
+import { FAQ } from './src/data/faq.ts'
 
 function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
   const org = {
@@ -50,7 +51,15 @@ function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
       location: { '@type': 'Place', name: 'Sète', address: org.address },
     },
   }))
-  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses] }
+  const faq = {
+    '@type': 'FAQPage',
+    mainEntity: FAQ.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a.join(' ') },
+    })),
+  }
+  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses, faq] }
   return {
     name: 'mjform-jsonld',
     transformIndexHtml: {
