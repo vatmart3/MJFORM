@@ -60,7 +60,6 @@ Le catalogue est défini à deux endroits qui doivent rester identiques : `src/d
 
 - Avis : `src/components/Reviews.tsx` contient trois emplacements « À REMPLACER PAR DE VRAIS AVIS ».
 - Mentions légales et CGV : les champs `à compléter` (SIRET, hébergeur, médiateur, droit de rétractation à valider).
-- Image de partage `public/og.png` (1200 × 630).
 - Coordonnées dans `.env`.
 
 ## Notes de conception
@@ -69,4 +68,5 @@ Le catalogue est défini à deux endroits qui doivent rester identiques : `src/d
 - Le smartphone est générique (aucune marque), dessiné en CSS et immobile. Son écran est du vrai DOM, piloté directement par la position du scroll (aucun lissage, aucune latence). Chaque scène occupe deux hauteurs d'écran : l'animation de l'écran se joue entre 10 et 70 % de la scène, puis le résultat reste affiché.
 - Aucun mouvement décoratif : pas de parallaxe, pas d'effet magnétique, pas de rebond. Les changements se font par fondus courts.
 - Écran de chargement présent dans le HTML (`index.html`), retiré dès que la page et les polices sont prêtes (600 ms minimum, 4 s maximum même sans JavaScript).
+- Vidéo de présentation (`src/components/Film.tsx`, fichiers dans `public/video/`) : rien n'est téléchargé avant le clic ; 720p sur mobile (1,8 Mo), 1080p sur ordinateur (3,8 Mo). L'image d'aperçu sert aussi d'image de partage (Open Graph) et la vidéo est déclarée en JSON-LD `VideoObject`. Pour la remplacer, réencoder avec `ffmpeg -i source.mp4 -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart` (ajouter `-vf scale=-2:720` pour la version mobile).
 - `prefers-reduced-motion` : aucun fondu ; le contenu des scènes reste piloté par le scroll.

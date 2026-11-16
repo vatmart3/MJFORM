@@ -4,6 +4,7 @@ import { Calculator } from './components/Calculator'
 import { Compare } from './components/Compare'
 import { Configurator } from './components/Configurator'
 import { Faq } from './components/Faq'
+import { Film } from './components/Film'
 import { FinalCta } from './components/Final'
 import { Footer } from './components/Footer'
 import { Groups } from './components/Groups'
@@ -33,6 +34,7 @@ export default function App() {
       <Nav />
       <main id="main">
         <Hero />
+        <Film />
         <Story />
         <Compare />
         <Calculator />

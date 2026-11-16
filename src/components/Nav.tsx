@@ -3,6 +3,7 @@ import { scrollToTarget } from '../lib/motion'
 import { BookLink, Logo } from './ui'
 
 const LINKS = [
+  { href: '#video', label: 'Vidéo' },
   { href: '#demo', label: 'L’atelier' },
   { href: '#ateliers', label: 'Ateliers et tarifs' },
   { href: '#temps', label: 'Calculateur' },

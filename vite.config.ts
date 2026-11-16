@@ -59,7 +59,19 @@ function jsonLd(siteUrl: string, phone: string, email: string): Plugin {
       acceptedAnswer: { '@type': 'Answer', text: f.a.join(' ') },
     })),
   }
-  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses, faq] }
+  const video = {
+    '@type': 'VideoObject',
+    name: 'MJ FORM — Atelier IA à Sète, en 30 secondes',
+    description:
+      'Avis Google, publications, devis : ce que vous faites en 3 heures avec votre téléphone lors d’un atelier IA MJ FORM à Sète.',
+    thumbnailUrl: `${siteUrl}/video/mjform-atelier-poster.jpg`,
+    contentUrl: `${siteUrl}/video/mjform-atelier-1080.mp4`,
+    uploadDate: '2026-11-16',
+    duration: 'PT30S',
+    inLanguage: 'fr',
+    publisher: { '@id': `${siteUrl}/#mjform` },
+  }
+  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses, faq, video] }
   return {
     name: 'mjform-jsonld',
     transformIndexHtml: {
