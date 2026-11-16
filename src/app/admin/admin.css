@@ -1,0 +1,956 @@
+/* ——————————————————————————————————————————————
+   Back-office MJ FORM : compléments à app.css.
+   Listes en lignes fines plutôt qu'en cartes, hiérarchie typographique nette.
+   —————————————————————————————————————————————— */
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.adm-mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 14px;
+}
+.adm-nowrap {
+  white-space: nowrap;
+}
+.adm-ellipsis {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.adm-danger-text {
+  color: var(--danger);
+}
+.adm-overline {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.adm-inline-icon {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+}
+
+/* ——— Retour ——— */
+.adm-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: -12px 0 -6px;
+  color: var(--ink-2);
+  font-weight: 500;
+  text-decoration: none !important;
+  transition: color 0.2s;
+}
+.adm-back:hover {
+  color: var(--blue);
+}
+.adm-back svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ——— Listes en lignes ——— */
+.adm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.adm-list > li {
+  border-bottom: 1px solid var(--border);
+}
+.adm-list-head {
+  display: none;
+}
+.adm-list-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 72px;
+  padding: 14px 8px;
+  color: var(--ink);
+  text-decoration: none !important;
+  border-radius: 12px;
+  transition: background-color 0.2s;
+}
+a.adm-list-row:hover {
+  background: var(--surface-3);
+}
+.adm-ftitle {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.adm-ftitle strong {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.adm-chev {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--border-strong);
+  transition:
+    color 0.2s,
+    transform 0.25s var(--ease);
+}
+a.adm-list-row:hover .adm-chev {
+  color: var(--ink-2);
+  transform: translateX(2px);
+}
+.adm-price {
+  font-family: var(--font-heading);
+  font-weight: 600;
+}
+
+/* Formations : grille sur grand écran, empilement sur mobile */
+.adm-formation-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    'title title chev'
+    'meta status price';
+  gap: 6px 12px;
+}
+.adm-formation-row > :nth-child(1) {
+  grid-area: title;
+}
+.adm-formation-row > :nth-child(2) {
+  display: none;
+}
+.adm-formation-row > :nth-child(3) {
+  grid-area: meta;
+  align-self: center;
+}
+.adm-formation-row > :nth-child(4) {
+  grid-area: status;
+}
+.adm-formation-row > :nth-child(5) {
+  grid-area: price;
+}
+.adm-formation-row > .adm-chev {
+  grid-area: chev;
+  align-self: center;
+}
+@media (min-width: 900px) {
+  .adm-list-head,
+  .adm-formation-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px 170px 100px 90px 18px;
+    grid-template-areas: none;
+    gap: 16px;
+    align-items: center;
+  }
+  .adm-formation-row > * {
+    grid-area: auto !important;
+  }
+  .adm-formation-row > :nth-child(2) {
+    display: block;
+  }
+  .adm-list-head {
+    padding: 0 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .adm-list:has(> .adm-list-head) {
+    border-top: 0;
+  }
+}
+
+/* Ateliers */
+.adm-workshop-row {
+  gap: 14px;
+}
+.adm-date {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  flex: none;
+  width: 52px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  line-height: 1;
+}
+.adm-date > :first-child {
+  font-family: var(--font-heading);
+  font-size: 21px;
+  font-weight: 600;
+}
+.adm-date > :last-child {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.adm-seats {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  flex: none;
+  max-width: 120px;
+}
+.adm-seats strong {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  line-height: 1.1;
+}
+@media (max-width: 480px) {
+  .adm-workshop-row {
+    flex-wrap: wrap;
+  }
+  .adm-workshop-row .adm-ftitle {
+    flex-basis: calc(100% - 66px - 32px);
+  }
+  .adm-workshop-row .adm-seats {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+    justify-items: start;
+    text-align: left;
+    padding-left: 66px;
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .adm-workshop-row .adm-seats strong {
+    font-size: 15px;
+  }
+}
+.adm-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.adm-meta svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.adm-meta:first-letter {
+  text-transform: uppercase;
+}
+.adm-booking {
+  min-height: 64px;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.adm-split {
+  display: grid;
+  gap: 32px;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .adm-split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  }
+}
+
+/* ——— Formulaires ——— */
+.adm-form .field label {
+  font-weight: 600;
+}
+.adm-grid-2,
+.adm-grid-3 {
+  display: grid;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .adm-grid-2 {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+@media (min-width: 768px) {
+  .adm-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: start;
+  }
+}
+.adm-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.adm-legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.adm-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  max-width: 100%;
+  justify-self: start;
+}
+.adm-seg label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+.adm-seg label:hover {
+  color: var(--ink);
+}
+.adm-seg label.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.adm-seg label:focus-within {
+  outline: 2px solid var(--blue);
+  outline-offset: 1px;
+}
+.adm-seg svg {
+  width: 17px;
+  height: 17px;
+}
+.adm-modal-actions {
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+@media (max-width: 479px) {
+  .adm-modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
+/* Barre d'enregistrement collante (au-dessus de la barre d'onglets sur mobile) */
+.adm-savebar {
+  position: sticky;
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+}
+@media (min-width: 1024px) {
+  .adm-savebar {
+    bottom: 20px;
+  }
+}
+
+/* Zone de suppression */
+.adm-danger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.adm-danger .section-title {
+  font-size: 17px;
+}
+.icon-btn.adm-danger-icon:hover {
+  color: var(--danger);
+  background: rgba(196, 22, 28, 0.06);
+}
+.icon-btn[aria-disabled='true'] {
+  opacity: 0.3;
+  cursor: default;
+}
+.icon-btn[aria-disabled='true']:hover {
+  background: transparent;
+  color: var(--ink-2);
+}
+
+/* Bouton d'ajout discret */
+.adm-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px 0 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--blue);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.adm-add:hover {
+  background: var(--blue-soft);
+}
+.adm-add svg {
+  width: 18px;
+  height: 18px;
+}
+.adm-inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.adm-inline-form .input {
+  flex: 1 1 220px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.adm-inline-add {
+  max-width: 560px;
+}
+
+/* ——— Programme : modules et leçons ——— */
+.adm-modules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+.adm-module {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  transition:
+    box-shadow 0.2s,
+    opacity 0.2s;
+}
+.adm-module.is-dragging,
+.adm-lesson.is-dragging {
+  opacity: 0.45;
+}
+.adm-module-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 12px 10px 12px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.adm-module-title {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 4px 0;
+}
+.adm-module-title h3 {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.adm-grip {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 44px;
+  color: var(--border-strong);
+  cursor: grab;
+}
+.adm-grip svg {
+  width: 18px;
+  height: 18px;
+}
+.adm-module-head:hover .adm-grip,
+.adm-lesson:hover .adm-grip {
+  color: var(--ink-2);
+}
+.adm-actions {
+  display: flex;
+  align-items: center;
+  flex: none;
+  margin-left: auto;
+}
+.adm-lessons {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+.adm-lesson {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 4px 10px 4px 6px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.adm-lesson:last-child {
+  border-bottom: 0;
+}
+.adm-kind {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--blue);
+}
+.adm-lesson-link {
+  display: grid;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  align-content: center;
+  padding: 4px 6px;
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none !important;
+}
+.adm-lesson-link:hover .adm-lesson-title {
+  color: var(--blue);
+}
+.adm-lesson-title {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  transition: color 0.2s;
+}
+.adm-module-empty {
+  margin: 0;
+  padding: 16px 20px;
+}
+.adm-module-foot {
+  padding: 4px 10px 8px;
+  border-top: 1px solid var(--border);
+}
+/* Écrans tactiles : pas de poignée (le glisser-déposer natif n'y fonctionne pas), flèches à la place */
+@media (hover: none) {
+  .adm-grip {
+    display: none;
+  }
+  .adm-module-head {
+    padding-left: 16px;
+  }
+  .adm-lesson {
+    padding-left: 14px;
+  }
+}
+@media (max-width: 520px) {
+  .adm-hide-xs {
+    display: none;
+  }
+  .adm-lesson .icon-btn {
+    width: 40px;
+  }
+}
+
+/* ——— Éditeur Markdown ——— */
+.adm-md {
+  display: grid;
+  gap: 20px;
+}
+.adm-md-preview {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.adm-preview-box {
+  min-height: 140px;
+  max-height: 520px;
+  overflow: auto;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+}
+.adm-preview-box .prose {
+  font-size: 16px;
+}
+@media (max-width: 959px) {
+  .adm-md[data-view='write'] .adm-md-preview,
+  .adm-md[data-view='preview'] .adm-md-write {
+    display: none;
+  }
+}
+@media (min-width: 960px) {
+  .adm-md-toggle {
+    display: none;
+  }
+  .adm-md {
+    grid-template-columns: 1fr 1fr;
+  }
+  .adm-md-preview {
+    padding-top: 0;
+  }
+  .adm-md-write .textarea {
+    min-height: 360px;
+  }
+  .adm-preview-box {
+    max-height: none;
+    height: 100%;
+    min-height: 360px;
+  }
+}
+.adm-md-preview .adm-overline {
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+/* Médias et ressources */
+.adm-media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.adm-media .input {
+  flex: 1 1 240px;
+}
+.adm-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  min-height: 32px;
+}
+.adm-open svg {
+  width: 14px;
+  height: 14px;
+}
+.adm-res-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.adm-res {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.adm-res > .adm-kind {
+  margin-top: 15px;
+  color: var(--ink-2);
+}
+.adm-res-fields {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+@media (min-width: 720px) {
+  .adm-res-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  }
+}
+
+/* ——— Clients ——— */
+.adm-search {
+  position: relative;
+  max-width: 420px;
+}
+.adm-search svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--ink-2);
+  pointer-events: none;
+}
+.adm-search .input {
+  padding-left: 42px;
+}
+.adm-client {
+  display: grid;
+  min-width: 0;
+}
+.adm-client strong {
+  font-weight: 600;
+}
+.adm-client a {
+  overflow-wrap: anywhere;
+}
+.adm-progress-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  min-width: 200px;
+}
+.adm-progress-list li {
+  display: grid;
+  gap: 6px;
+}
+.adm-strong-num {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 16px;
+}
+.adm-cell-action {
+  text-align: right;
+}
+.adm-table-stack .table td:first-child {
+  min-width: 240px;
+}
+@media (max-width: 759px) {
+  .adm-table-stack {
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .adm-table-stack .table,
+  .adm-table-stack tbody,
+  .adm-table-stack tr,
+  .adm-table-stack td {
+    display: block;
+  }
+  .adm-table-stack thead {
+    display: none;
+  }
+  .adm-table-stack tr {
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+  .adm-table-stack tr:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+  .adm-table-stack .table td {
+    padding: 6px 0;
+    border: 0;
+    min-width: 0;
+  }
+  .adm-table-stack td[data-label='Formations'] {
+    padding: 10px 0;
+  }
+  .adm-table-stack td.num {
+    display: inline-flex;
+    gap: 6px;
+    align-items: baseline;
+    width: 50%;
+    text-align: left;
+  }
+  .adm-table-stack td.num::before {
+    content: attr(data-label) ' :';
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .adm-table-stack td.num .tiny {
+    display: inline !important;
+  }
+  .adm-table-stack .adm-cell-action {
+    text-align: left;
+    padding-top: 10px;
+  }
+  .adm-progress-list {
+    min-width: 0;
+  }
+}
+
+/* ——— Import ——— */
+.adm-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.adm-step > span {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+}
+.adm-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  color: var(--danger);
+}
+.adm-alert svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+.adm-preview-table td {
+  white-space: nowrap;
+}
+.adm-preview-table tr.is-invalid td {
+  background: rgba(196, 22, 28, 0.04);
+}
+.adm-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.adm-state svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.adm-state.ok svg {
+  color: var(--blue);
+}
+.adm-state.bad {
+  color: var(--danger);
+}
+.adm-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--blue-soft);
+}
+.adm-note svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--blue);
+}
+.adm-stats {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--border);
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .adm-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.adm-stats > div {
+  display: grid;
+  gap: 2px;
+  padding: 20px 24px;
+  background: var(--surface);
+}
+.adm-stats dt {
+  font-size: 14px;
+  font-weight: 600;
+}
+.adm-stats dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.adm-errors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  color: var(--danger);
+  font-size: 14px;
+}
+.adm-errors li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.adm-errors svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+/* ——— Réglages ——— */
+.adm-tiers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.adm-tier {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 44px;
+  grid-template-areas:
+    'num fields del'
+    '. sum .';
+  gap: 8px 14px;
+  align-items: start;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.adm-tier-num {
+  grid-area: num;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 30px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+}
+.adm-tier-fields {
+  grid-area: fields;
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .adm-tier-fields {
+    grid-template-columns: 1fr 1.3fr 1fr;
+  }
+}
+.adm-tier-sum {
+  grid-area: sum;
+  margin: 0;
+}
+.adm-tier-del {
+  grid-area: del;
+  margin-top: 26px;
+}
+.input:disabled {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}

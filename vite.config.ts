@@ -103,7 +103,8 @@ function devApi(): Plugin {
     configureServer(server) {
       server.middlewares.use('/api', async (req, res, next) => {
         const name = (req.url ?? '').split('?')[0].replace(/^\//, '')
-        if (!/^[a-z-]+$/.test(name)) return next()
+        // api/<nom>.ts ou api/<dossier>/<nom>.ts (ex. /api/espace/checkout)
+        if (!/^(?:[a-z-]+\/)?[a-z-]+$/.test(name)) return next()
         try {
           const mod = await server.ssrLoadModule(`/api/${name}.ts`)
           const handler = mod[req.method ?? 'GET']
@@ -131,10 +132,25 @@ function devApi(): Plugin {
   }
 }
 
+/** En développement, /espace/… et /admin/… renvoient vers leur application (comme les réécritures Vercel). */
+function spaFallback(): Plugin {
+  return {
+    name: 'mjform-spa-fallback',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const path = (req.url ?? '').split('?')[0]
+        const m = /^\/(espace|admin)(\/[^.]*)?$/.exec(path)
+        if (m && path !== `/${m[1]}/`) req.url = `/${m[1]}/index.html`
+        next()
+      })
+    },
+  }
+}
+
 export default defineConfig(() => {
   const siteUrl = SITE_URL
   return {
-    plugins: [react(), jsonLd(siteUrl), devApi()],
+    plugins: [react(), jsonLd(siteUrl), devApi(), spaFallback()],
     build: {
       target: 'es2020',
       rollupOptions: {
@@ -143,6 +159,8 @@ export default defineConfig(() => {
           mentions: resolve(import.meta.dirname, 'mentions-legales/index.html'),
           cgv: resolve(import.meta.dirname, 'cgv/index.html'),
           merci: resolve(import.meta.dirname, 'merci/index.html'),
+          espace: resolve(import.meta.dirname, 'espace/index.html'),
+          admin: resolve(import.meta.dirname, 'admin/index.html'),
         },
       },
     },

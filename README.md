@@ -61,3 +61,76 @@ Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décemb
 - Écran de chargement présent dans le HTML (`index.html`), retiré dès que la page et les polices sont prêtes (600 ms minimum, 4 s maximum même sans JavaScript).
 - Vidéo de présentation (`src/components/Film.tsx`, fichiers dans `public/video/`) : lecture automatique sans le son et en boucle quand elle est visible, pause hors de l'écran, bouton « Activer le son ». Rien n'est téléchargé tant qu'elle n'approche pas de l'écran ; 720p sur mobile (3,3 Mo), 1080p sur ordinateur (7,2 Mo). L'image d'aperçu sert aussi d'image de partage (Open Graph) et la vidéo est déclarée en JSON-LD `VideoObject`. Pour la remplacer, réencoder avec `ffmpeg -i source.mp4 -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart` (ajouter `-vf scale=-2:720` pour la version mobile).
 - `prefers-reduced-motion` : aucun fondu ; le contenu des scènes reste piloté par le scroll.
+
+## Espace client : configuration Supabase et Stripe
+
+L'espace client (`/espace/`) et l'administration (`/admin/`) fonctionnent en deux modes :
+
+- **Démo** : sans `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (ou avec `VITE_ESPACE_DEMO=1`), tout se passe dans le navigateur avec des comptes de test (`client@demo.mjform.fr` / `demo1234`, `admin@demo.mjform.fr` / `admin1234`). Aucune donnée n'est envoyée, aucun paiement réel.
+- **Production** : Supabase (comptes, formations, progression, parrainage) et Stripe (paiement des formations en ligne).
+
+### 1. Projet Supabase
+
+1. Créer un projet Supabase **dédié** à MJ FORM (région Europe, ex. Paris ou Francfort). Ne pas réutiliser un projet existant.
+2. SQL Editor : exécuter `supabase/migrations/20261116120000_espace_client.sql`, puis `supabase/seed.sql` (les 3 formations et les ateliers du site). Avec la CLI : `supabase link` puis `supabase db push`.
+3. Authentication → URL Configuration : *Site URL* `https://<domaine>/espace/`, *Redirect URLs* `https://<domaine>/espace/` (ajouter aussi `http://localhost:5173/espace/` pour le développement).
+4. Authentication → Providers :
+   - **Email** activé (lien magique). Les nouveaux comptes sont créés au premier lien.
+   - **Google** activé : créer un identifiant OAuth dans Google Cloud (type « Application Web »), URI de redirection autorisée `https://<projet>.supabase.co/auth/v1/callback`, puis coller l'ID client et le secret dans Supabase.
+5. Authentication → SMTP : configurer un SMTP personnalisé (Brevo, Postmark, Resend…). L'envoi intégré de Supabase est limité à quelques e-mails par heure, insuffisant pour l'import des participants d'un atelier. Personnaliser en français les modèles « Magic Link » et « Invite user ».
+6. Storage : les buckets `formations` (privé, supports de cours servis par URL signée valable 1 h) et `avatars` (public) sont créés par la migration. Les vidéos lourdes : relever la limite de taille des fichiers (Storage → Settings) selon l'offre.
+
+Sécurité : le RLS est activé sur toutes les tables. Un client ne lit que ses propres données ; le plan des formations publiées est public, mais le contenu des leçons (texte, vidéo, supports) n'est lisible qu'avec un accès à la formation. Achats, accès et récompenses ne sont écrits que par le serveur (webhook Stripe, clé `service_role`) ou par un administrateur.
+
+### 2. Premier administrateur
+
+Se connecter une première fois sur `/espace/` avec son adresse, puis dans le SQL Editor :
+
+```sql
+insert into public.user_roles (user_id, role)
+select id, 'admin' from public.profiles where email = lower('prenom@exemple.fr')
+on conflict do nothing;
+```
+
+`supabase/seed.sql` contient aussi un bloc facultatif, désactivé par défaut, qui crée les comptes de démonstration (`set mjform.demo_users = 'on';` avant d'exécuter le fichier). À réserver à un projet de test : les mots de passe sont publics.
+
+### 3. Variables d'environnement Vercel
+
+Voir `.env.example` :
+
+| Variable | Rôle |
+| --- | --- |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Client Supabase du navigateur (clé publique « anon ») |
+| `VITE_ESPACE_DEMO` | `1` force le mode démo (prévisualisations) |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Fonctions serveur `api/espace/*` et webhook (clé secrète, jamais exposée) |
+| `STRIPE_SECRET_KEY` | Déjà utilisée par les réservations d'ateliers |
+| `STRIPE_WEBHOOK_SECRET` | Vérification de la signature du webhook |
+
+Les variables `VITE_*` sont intégrées au moment du build : redéployer après les avoir modifiées.
+
+### 4. Webhook Stripe
+
+Stripe → Développeurs → Webhooks → Ajouter un endpoint : `https://<domaine>/api/stripe-webhook`, événements `checkout.session.completed` et `checkout.session.async_payment_succeeded`. Copier le secret de signature dans `STRIPE_WEBHOOK_SECRET`. En local : `stripe listen --forward-to localhost:5173/api/stripe-webhook`.
+
+Le webhook :
+
+- formation en ligne payée → achat enregistré, accès ouvert, récompense consommée ; au premier achat d'un filleul, parrainage « acheté » et récompenses de palier du parrain (coupon Stripe à usage unique) ;
+- atelier réservé sur le site → inscription ajoutée à l'atelier correspondant (`workshops.external_id` = identifiant de la session dans `src/data/sessions.ts`).
+
+Chaque événement peut être rejoué sans doublon.
+
+### 5. Fonctions serveur de l'espace client
+
+| Fonction | Rôle |
+| --- | --- |
+| `POST /api/espace/checkout` | Recalcule le prix (même règle que l'affichage : meilleure réduction, jamais cumulée), crée le paiement Stripe avec le coupon ; réduction de 100 % : accès direct |
+| `GET /api/espace/invoices` | Factures du client (lien Stripe) |
+| `POST /api/espace/delete-account` | Suppression définitive du compte (RGPD) ; les achats restent, anonymisés |
+| `POST /api/espace/admin-invite` | Admin : ouvrir l'accès à une formation, importer les participants d'un atelier (invitation par e-mail) |
+| `POST /api/stripe-webhook` | Voir ci-dessus |
+
+Toutes exigent l'en-tête `Authorization: Bearer <jeton Supabase>` (sauf le webhook, signé par Stripe). Le prix des formations en ligne est celui enregistré en base (admin), pas un prix Stripe.
+
+### 6. Contenu des formations
+
+Dans l'admin, les vidéos et PDF téléversés vont dans le bucket privé `formations` (`<id de la formation>/<fichier>`). Une adresse qui commence par `/` ou `http` est utilisée telle quelle (fichier public du site, vidéo hébergée ailleurs). Les fichiers de démonstration de `seed.sql` (`/video/…`, `/espace-demo/…`) sont publics : les remplacer par les vrais supports avant la mise en ligne.
