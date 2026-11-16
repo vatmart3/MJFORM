@@ -37,6 +37,7 @@
   vertical-align: -3px;
 }
 
+
 /* ——— Retour ——— */
 .adm-back {
   display: inline-flex;
@@ -233,6 +234,15 @@ a.adm-list-row:hover .adm-chev {
     font-size: 15px;
   }
 }
+.adm-seats.is-inline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  max-width: none;
+}
+.adm-seats.is-inline strong {
+  font-size: 17px;
+}
 .adm-meta {
   display: inline-flex;
   align-items: center;
@@ -258,8 +268,15 @@ a.adm-list-row:hover .adm-chev {
 }
 @media (min-width: 1100px) {
   .adm-split {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
   }
+  .adm-split > .panel .adm-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.adm-grid-2 .input,
+.adm-grid-3 .input {
+  min-width: 0;
 }
 
 /* ——— Formulaires ——— */
@@ -336,6 +353,16 @@ a.adm-list-row:hover .adm-chev {
   outline: 2px solid var(--blue);
   outline-offset: 1px;
 }
+@media (max-width: 520px) {
+  .adm-seg {
+    display: flex;
+    justify-self: stretch;
+  }
+  .adm-seg label {
+    flex: 1 1 auto;
+    padding: 0 12px;
+  }
+}
 .adm-seg svg {
   width: 17px;
   height: 17px;
@@ -370,6 +397,19 @@ a.adm-list-row:hover .adm-chev {
 @media (min-width: 1024px) {
   .adm-savebar {
     bottom: 20px;
+  }
+}
+.adm-savebar.is-static {
+  position: static;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+@media (max-width: 479px) {
+  .adm-savebar.is-static {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
   }
 }
 

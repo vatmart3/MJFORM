@@ -134,15 +134,19 @@ function devApi(): Plugin {
 
 /** En développement, /espace/… et /admin/… renvoient vers leur application (comme les réécritures Vercel). */
 function spaFallback(): Plugin {
+  const rewrite = (req: { url?: string }, _res: unknown, next: () => void) => {
+    const path = (req.url ?? '').split('?')[0]
+    const m = /^\/(espace|admin)(\/[^.]*)?$/.exec(path)
+    if (m && path !== `/${m[1]}/`) req.url = `/${m[1]}/index.html`
+    next()
+  }
   return {
     name: 'mjform-spa-fallback',
     configureServer(server) {
-      server.middlewares.use((req, _res, next) => {
-        const path = (req.url ?? '').split('?')[0]
-        const m = /^\/(espace|admin)(\/[^.]*)?$/.exec(path)
-        if (m && path !== `/${m[1]}/`) req.url = `/${m[1]}/index.html`
-        next()
-      })
+      server.middlewares.use(rewrite)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(rewrite)
     },
   }
 }

@@ -49,10 +49,10 @@ const dateLong = (iso: string) => formatDate(iso, { weekday: 'long', day: 'numer
 const time = (iso: string) => formatDate(iso, { hour: '2-digit', minute: '2-digit' })
 const schedule = (w: Workshop) => `${dateLong(w.startsAt)}, ${time(w.startsAt)}${w.endsAt ? ` – ${time(w.endsAt)}` : ''}`
 
-function Seats({ w }: { w: Workshop }) {
+function Seats({ w, inline }: { w: Workshop; inline?: boolean }) {
   if (w.seatsLeft === null) return <span className="small muted">{w.capacity} places</span>
   return (
-    <span className="adm-seats">
+    <span className={inline ? 'adm-seats is-inline' : 'adm-seats'}>
       <strong className={w.seatsLeft === 0 ? 'adm-danger-text' : undefined}>{w.seatsLeft === 0 ? 'Complet' : w.seatsLeft}</strong>
       <span className="small muted">
         {w.seatsLeft === 0 ? `${w.capacity} places` : `place${w.seatsLeft > 1 ? 's' : ''} restante${w.seatsLeft > 1 ? 's' : ''} sur ${w.capacity}`}
@@ -305,7 +305,7 @@ export function WorkshopDetail() {
             <h2 className="section-title" id="bk-title" style={{ margin: 0 }}>
               Inscrits <span className="muted">({bookings.length}/{w.capacity})</span>
             </h2>
-            <Seats w={w} />
+            <Seats w={w} inline />
           </div>
           {bookings.length ? (
             <motion.ul className="adm-list" variants={listVariants} initial="hidden" animate="show">

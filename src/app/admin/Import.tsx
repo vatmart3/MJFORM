@@ -284,7 +284,7 @@ export function ImportParticipants() {
             <Mail aria-hidden="true" />
             <span>{magic}</span>
           </p>
-          <div className="adm-savebar" style={{ marginTop: 4 }}>
+          <div className="adm-savebar is-static" style={{ marginTop: 4 }}>
             <span className="small muted">{valid.length ? `${valid.length} participant${valid.length > 1 ? 's' : ''} prêt${valid.length > 1 ? 's' : ''}` : 'Ajoutez des participants à l’étape 1'}</span>
             <Button onClick={submit} loading={busy} disabled={!valid.length || !formation || !!parsed?.fatal}>
               Importer {valid.length ? `${valid.length} participant${valid.length > 1 ? 's' : ''}` : ''}

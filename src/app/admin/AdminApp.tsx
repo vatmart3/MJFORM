@@ -30,18 +30,20 @@ export default function AdminApp() {
         </Link>
       }
     >
-      <Routes>
-        <Route index element={<Navigate to="/admin/formations" replace />} />
-        <Route path="formations" element={<FormationsList />} />
-        <Route path="formations/:id" element={<FormationEditor />} />
-        <Route path="formations/:id/lecons/:lessonId" element={<LessonEditor />} />
-        <Route path="clients" element={<Clients />} />
-        <Route path="import" element={<ImportParticipants />} />
-        <Route path="ateliers" element={<Workshops />} />
-        <Route path="ateliers/:id" element={<WorkshopDetail />} />
-        <Route path="reglages" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/admin/formations" replace />} />
-      </Routes>
+      <div className="adm-root">
+        <Routes>
+          <Route index element={<Navigate to="/admin/formations" replace />} />
+          <Route path="formations" element={<FormationsList />} />
+          <Route path="formations/:id" element={<FormationEditor />} />
+          <Route path="formations/:id/lecons/:lessonId" element={<LessonEditor />} />
+          <Route path="clients" element={<Clients />} />
+          <Route path="import" element={<ImportParticipants />} />
+          <Route path="ateliers" element={<Workshops />} />
+          <Route path="ateliers/:id" element={<WorkshopDetail />} />
+          <Route path="reglages" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/admin/formations" replace />} />
+        </Routes>
+      </div>
     </Shell>
   )
 }

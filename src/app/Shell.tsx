@@ -2,7 +2,7 @@
 // barre d'onglets en bas (mobile). Les mêmes entrées servent aux deux.
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, useLocation } from 'react-router'
-import { AnimatePresence, motion } from 'motion/react'
+import { motion } from 'motion/react'
 import { LogOut, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react'
 import { useBackend, useSession } from './state'
 import { Avatar } from './ui/kit'
@@ -96,11 +96,10 @@ export function Shell({ items, children, footer }: { items: NavItem[]; children:
       </header>
 
       <main id="contenu" className="main">
-        <AnimatePresence mode="wait">
-          <motion.div key={location.pathname.split('/').slice(0, 4).join('/')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.12 } }} transition={{ duration: 0.25 }}>
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        {/* Fondu d'entrée à chaque changement de page (sans attente de sortie : aucun écran vide) */}
+        <motion.div key={location.pathname.split('/').slice(0, 4).join('/')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+          {children}
+        </motion.div>
       </main>
 
       <nav className="tabbar" aria-label="Navigation">

@@ -62,6 +62,26 @@ Les dates sont dans `src/data/sessions.ts` (atelier spécial fêtes le 4 décemb
 - Vidéo de présentation (`src/components/Film.tsx`, fichiers dans `public/video/`) : lecture automatique sans le son et en boucle quand elle est visible, pause hors de l'écran, bouton « Activer le son ». Rien n'est téléchargé tant qu'elle n'approche pas de l'écran ; 720p sur mobile (3,3 Mo), 1080p sur ordinateur (7,2 Mo). L'image d'aperçu sert aussi d'image de partage (Open Graph) et la vidéo est déclarée en JSON-LD `VideoObject`. Pour la remplacer, réencoder avec `ffmpeg -i source.mp4 -c:v libx264 -crf 24 -preset slow -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart` (ajouter `-vf scale=-2:720` pour la version mobile).
 - `prefers-reduced-motion` : aucun fondu ; le contenu des scènes reste piloté par le scroll.
 
+## Espace client et administration
+
+- `/espace` : espace client (tableau de bord, mes formations, lecteur de leçons, à débloquer, parrainage, profil).
+- `/admin` : back-office réservé aux administrateurs (formations → modules → leçons, clients, import CSV, ateliers, réglages).
+- Code : `src/app/` (`espace/`, `admin/`, `data/` pour le modèle, les règles métier et les deux backends).
+
+### Espace de test (mode démo)
+
+Tant que `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` ne sont pas définis, l'espace tourne en **mode démo** : données fictives stockées dans le navigateur, paiements simulés (aucun débit), lien magique simulé (connexion immédiate). Un bouton « Réinitialiser la démo » remet les données à zéro.
+
+| Compte | E-mail | Mot de passe |
+| --- | --- | --- |
+| Client (Camille, Boulangerie du Port) | `client@demo.mjform.fr` | `demo1234` |
+| Admin (Jérémy) | `admin@demo.mjform.fr` | `admin1234` |
+| Admin (Matheis) | `matheis@demo.mjform.fr` | `admin1234` |
+
+Parcours à essayer : ouvrir `/espace/inscription?ref=CAMILLE-7K2` dans une fenêtre privée, s'inscrire avec un e-mail quelconque (lien simulé), débloquer l'atelier d'initiation à 44,10 € (-10 % filleul), terminer une leçon. Puis se connecter en Camille : son 3e filleul acheteur lui donne -30 %, visible sur « À débloquer ».
+
+Dès que Supabase est configuré, l'espace bascule seul sur la vraie base (`VITE_ESPACE_DEMO=1` force le mode démo).
+
 ## Espace client : configuration Supabase et Stripe
 
 L'espace client (`/espace/`) et l'administration (`/admin/`) fonctionnent en deux modes :
