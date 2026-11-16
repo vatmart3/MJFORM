@@ -78,7 +78,7 @@ L'espace client (`/espace/`) et l'administration (`/admin/`) fonctionnent en deu
    - **Email** activé (lien magique). Les nouveaux comptes sont créés au premier lien.
    - **Google** activé : créer un identifiant OAuth dans Google Cloud (type « Application Web »), URI de redirection autorisée `https://<projet>.supabase.co/auth/v1/callback`, puis coller l'ID client et le secret dans Supabase.
 5. Authentication → SMTP : configurer un SMTP personnalisé (Brevo, Postmark, Resend…). L'envoi intégré de Supabase est limité à quelques e-mails par heure, insuffisant pour l'import des participants d'un atelier. Personnaliser en français les modèles « Magic Link » et « Invite user ».
-6. Storage : les buckets `formations` (privé, supports de cours servis par URL signée valable 1 h) et `avatars` (public) sont créés par la migration. Les vidéos lourdes : relever la limite de taille des fichiers (Storage → Settings) selon l'offre.
+6. Storage : les buckets `formations` (privé, supports de cours servis par URL signée valable 1 h) et `avatars` (public) sont créés par la migration. Pour des vidéos lourdes, relever la limite de taille des fichiers (Storage → Settings) selon l'offre.
 
 Sécurité : le RLS est activé sur toutes les tables. Un client ne lit que ses propres données ; le plan des formations publiées est public, mais le contenu des leçons (texte, vidéo, supports) n'est lisible qu'avec un accès à la formation. Achats, accès et récompenses ne sont écrits que par le serveur (webhook Stripe, clé `service_role`) ou par un administrateur.
 
