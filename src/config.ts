@@ -7,7 +7,7 @@ export const CONTACT = {
   phone: '06 11 71 83 68',
   tel: 'tel:+33611718368',
   whatsapp: 'https://wa.me/33611718368',
-  email: 'jeremyvatuonepro@gmail.com',
+  email: 'mjagency.officiel@gmail.com',
 }
 
 /** Session de lancement : l'atelier spécial fêtes (pilote). */

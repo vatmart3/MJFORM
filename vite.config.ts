@@ -1,81 +1,47 @@
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
-import { ATELIERS } from './src/data/ateliers.ts'
-import { FAQ } from './src/data/faq.ts'
-import { CONTACT, SITE_URL } from './src/config.ts'
+import { readFileSync } from 'node:fs'
+import { CONTACT, NEXT_WORKSHOP, OFFERS, AREA } from './src/site/content.ts'
 
+const SITE_URL = 'https://mjform.fr'
+
+/** Données structurées (SEO local) de l'accueil : organisme de formation + ateliers. */
 function jsonLd(siteUrl: string): Plugin {
-  const phone = '+33611718368'
-  const email = CONTACT.email
   const org = {
     '@type': ['LocalBusiness', 'EducationalOrganization'],
     '@id': `${siteUrl}/#mjform`,
     name: 'MJ FORM',
     description:
-      'Ateliers IA pour commerçants et entrepreneurs du Bassin de Thau : ChatGPT, Claude, avis Google, réseaux sociaux, devis et agents IA.',
+      'Ateliers et formations à l’intelligence artificielle pour les commerçants, artisans, indépendants et dirigeants de TPE/PME du Bassin de Thau. En présentiel à Sète, en petit groupe, ou en ligne.',
     url: siteUrl,
-    telephone: phone,
-    email,
-    priceRange: '49 € – 990 €',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: '54 rue Marceau',
-      addressLocality: 'Sète',
-      postalCode: '34200',
-      addressRegion: 'Occitanie',
-      addressCountry: 'FR',
-    },
+    telephone: CONTACT.tel,
+    email: CONTACT.email,
+    address: { '@type': 'PostalAddress', addressLocality: 'Sète', postalCode: '34200', addressRegion: 'Occitanie', addressCountry: 'FR' },
     geo: { '@type': 'GeoCoordinates', latitude: 43.4028, longitude: 3.6966 },
-    areaServed: ['Sète', 'Frontignan', 'Balaruc-les-Bains', 'Mèze', 'Marseillan', 'Bouzigues', 'Bassin de Thau'].map(
-      (name) => ({ '@type': 'City', name }),
-    ),
-    parentOrganization: { '@type': 'Organization', name: 'MJ LAB' },
+    areaServed: [...AREA, 'Bassin de Thau'].map((name) => ({ '@type': 'City', name })),
+    parentOrganization: { '@type': 'Organization', name: 'MJ AGENCY', parentOrganization: { '@type': 'Organization', name: 'MJ LAB' } },
   }
-  const courses = ATELIERS.map((a) => ({
+  const courses = OFFERS.map((o) => ({
     '@type': 'Course',
-    '@id': `${siteUrl}/#${a.id}`,
-    name: `${a.name} — atelier IA à Sète`,
-    description: `${a.pitch} ${a.takeaways.join('. ')}.`,
+    '@id': `${siteUrl}/#${o.id}`,
+    name: `${o.title} — formation IA à Sète`,
+    description: `${o.summary} ${o.topics.join(', ')}.`,
     inLanguage: 'fr',
     provider: { '@id': `${siteUrl}/#mjform` },
-    educationalLevel: a.level === 'n1' ? 'Débutant' : 'Intermédiaire',
-    offers: {
-      '@type': 'Offer',
-      price: a.price,
-      priceCurrency: 'EUR',
-      category: 'Paid',
-      url: `${siteUrl}/#reserver`,
-      availability: 'https://schema.org/InStock',
-    },
-    hasCourseInstance: {
-      '@type': 'CourseInstance',
-      courseMode: 'Onsite',
-      courseWorkload: a.isoDuration,
-      location: { '@type': 'Place', name: 'Sète', address: org.address },
-    },
+    ...(o.id === 'fetes'
+      ? {
+          offers: { '@type': 'Offer', price: 49, priceCurrency: 'EUR', category: 'Paid', availability: 'https://schema.org/InStock' },
+          hasCourseInstance: {
+            '@type': 'CourseInstance',
+            courseMode: 'Onsite',
+            startDate: NEXT_WORKSHOP.date,
+            location: { '@type': 'Place', name: 'Sète', address: org.address },
+          },
+        }
+      : {}),
   }))
-  const faq = {
-    '@type': 'FAQPage',
-    mainEntity: FAQ.map((f) => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a.join(' ') },
-    })),
-  }
-  const video = {
-    '@type': 'VideoObject',
-    name: 'MJ FORM — L’atelier IA pour les commerçants de Sète, en une minute',
-    description:
-      'Pour qui, comment ça se passe et ce que vous emportez : avis Google, publications, devis automatiques, en 3 heures avec votre téléphone lors d’un atelier IA MJ FORM à Sète.',
-    thumbnailUrl: `${siteUrl}/video/mjform-presentation-poster.jpg`,
-    contentUrl: `${siteUrl}/video/mjform-presentation-1080.mp4`,
-    uploadDate: '2026-11-16',
-    duration: 'PT53S',
-    inLanguage: 'fr',
-    publisher: { '@id': `${siteUrl}/#mjform` },
-  }
-  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses, faq, video] }
+  const data = { '@context': 'https://schema.org', '@graph': [org, ...courses] }
   return {
     name: 'mjform-jsonld',
     transformIndexHtml: {
@@ -83,9 +49,21 @@ function jsonLd(siteUrl: string): Plugin {
       handler(html, ctx) {
         html = html.replaceAll('%SITE_URL%', siteUrl)
         if (ctx.filename !== resolve(import.meta.dirname, 'index.html')) return html
-        return html.replace(
-          '</head>',
-          `<script type="application/ld+json">${JSON.stringify(data)}</script>\n</head>`,
+        return html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(data)}</script>\n</head>`)
+      },
+    },
+  }
+}
+
+/** Morceaux de page partagés : <!-- @include header --> → src/site/partials/header.html */
+function partials(): Plugin {
+  return {
+    name: 'mjform-partials',
+    transformIndexHtml: {
+      order: 'pre',
+      handler(html) {
+        return html.replace(/<!--\s*@include\s+([a-z-]+)\s*-->/g, (_m, name: string) =>
+          readFileSync(resolve(import.meta.dirname, 'src/site/partials', `${name}.html`), 'utf8'),
         )
       },
     },
@@ -156,7 +134,7 @@ export default defineConfig(() => {
   return {
     // Espace de test (mode démo) : autorisé partout sauf en production Vercel
     define: { __ESPACE_DEMO__: JSON.stringify(process.env.VERCEL_ENV !== 'production') },
-    plugins: [react(), jsonLd(siteUrl), devApi(), spaFallback()],
+    plugins: [react(), partials(), jsonLd(siteUrl), devApi(), spaFallback()],
     build: {
       target: 'es2020',
       rollupOptions: {
