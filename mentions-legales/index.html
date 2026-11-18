@@ -2,22 +2,22 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <meta name="theme-color" content="#fff3e7" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Mentions légales | MJ FORM</title>
     <meta name="description" content="Mentions légales du site MJ FORM, activité de formation de MJAGENCY (Jérémy Vatuone) à Sète." />
     <link rel="canonical" href="%SITE_URL%/mentions-legales/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    
     <script type="module" src="/src/page.ts"></script>
   </head>
-  <body>
-    <header class="nav scrolled">
-      <div class="wrap"><a class="logo" href="/" aria-label="MJ FORM, accueil">MJ<span class="dot">.</span> FORM</a><div class="nav-actions"><a class="btn btn-secondary btn-sm" href="/espace">Se connecter</a><a class="btn btn-primary btn-sm" href="/#reserver">Réserver</a></div></div>
-    </header>
-    <main class="doc">
-      <div class="wrap">
+  <body data-page="legal">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <!-- @include header -->
+    <main id="contenu" class="doc-page">
+      <div class="doc container">
+        <img class="doc-paper" src="/paper/periwinkle-b.svg" alt="" aria-hidden="true" width="280" height="380" />
         <p class="eyebrow">Informations légales</p>
-        <h1>Mentions légales.</h1>
+        <h1 class="doc-title">Mentions légales.</h1>
         <h2>Éditeur du site</h2>
         <p>MJ FORM, activité de MJAGENCY<br />
         Jérémy Vatuone, entrepreneur individuel<br />
@@ -25,7 +25,7 @@
         SIRET : 992 328 120 00017<br />
         TVA non applicable, art. 293 B du CGI<br />
         Déclaration d’activité de formation : en cours d’enregistrement<br />
-        Contact : <a href="mailto:jeremyvatuonepro@gmail.com">jeremyvatuonepro@gmail.com</a> · <a href="tel:+33611718368">06 11 71 83 68</a></p>
+        Contact : <a href="mailto:mjagency.officiel@gmail.com">mjagency.officiel@gmail.com</a> · <a href="tel:+33611718368">06 11 71 83 68</a></p>
         <p>Directeur de la publication : Jérémy Vatuone.</p>
         <h2>Hébergement</h2>
         <p>Vercel Inc.<br />
@@ -33,19 +33,14 @@
         Covina, CA 91723, États-Unis</p>
         <h2>Données personnelles</h2>
         <p>Les données transmises lors d’une réservation (nom, e-mail, téléphone) servent uniquement à gérer votre inscription, vous envoyer les informations pratiques et assurer le suivi de 14 jours. Elles ne sont ni vendues ni cédées. Le paiement est traité par Stripe : MJ FORM n’a jamais accès à vos données bancaires.</p>
-        <p>Vous disposez d’un droit d’accès, de rectification et de suppression de vos données. Pour l’exercer, écrivez à <a href="mailto:jeremyvatuonepro@gmail.com">jeremyvatuonepro@gmail.com</a>. Vous pouvez aussi saisir la CNIL.</p>
+        <p>Vous disposez d’un droit d’accès, de rectification et de suppression de vos données. Pour l’exercer, écrivez à <a href="mailto:mjagency.officiel@gmail.com">mjagency.officiel@gmail.com</a>. Vous pouvez aussi saisir la CNIL.</p>
         <h2>Cookies</h2>
         <p>Ce site n’utilise aucun cookie publicitaire ni de mesure d’audience. Seuls les cookies strictement nécessaires au paiement peuvent être déposés par Stripe lors de la réservation.</p>
         <h2>Propriété intellectuelle</h2>
         <p>L’ensemble des contenus du site (textes, visuels, vidéo, logo) est la propriété de Jérémy Vatuone (MJAGENCY), sauf mention contraire. Toute reproduction sans autorisation est interdite.</p>
-        <a class="link-arrow back" href="/">Retour à l’accueil</a>
+        <a class="link-arrow doc-back" href="/">Retour à l’accueil</a>
       </div>
     </main>
-    <footer class="footer">
-      <div class="wrap">
-        <span>MJ FORM · une activité MJ LAB · Sète, Bassin de Thau</span>
-        <nav aria-label="Informations légales"><a href="/mentions-legales/">Mentions légales</a><a href="/cgv/">CGV</a></nav>
-      </div>
-    </footer>
+    <!-- @include footer -->
   </body>
 </html>

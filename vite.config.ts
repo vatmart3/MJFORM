@@ -140,6 +140,10 @@ export default defineConfig(() => {
       rollupOptions: {
         input: {
           main: resolve(import.meta.dirname, 'index.html'),
+          apropos: resolve(import.meta.dirname, 'a-propos/index.html'),
+          ateliers: resolve(import.meta.dirname, 'ateliers/index.html'),
+          agenda: resolve(import.meta.dirname, 'agenda/index.html'),
+          contact: resolve(import.meta.dirname, 'contact/index.html'),
           mentions: resolve(import.meta.dirname, 'mentions-legales/index.html'),
           cgv: resolve(import.meta.dirname, 'cgv/index.html'),
           merci: resolve(import.meta.dirname, 'merci/index.html'),

@@ -1,0 +1,7 @@
+<script>
+      // Animations d'entrée : masque les éléments du haut de page avant l'arrivée de GSAP (sauf mouvement réduit).
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('anim')
+        setTimeout(function () { document.documentElement.classList.remove('anim') }, 4000)
+      }
+    </script>

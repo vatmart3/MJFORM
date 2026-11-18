@@ -1,15 +1,17 @@
-// Accueil MJ FORM : interactions et animations (GSAP + ScrollTrigger + SplitText, défilement natif).
+// Site MJ FORM : interactions et animations (GSAP + ScrollTrigger + SplitText, défilement natif).
 import '@fontsource/lora/latin-400.css'
 import '@fontsource/lora/latin-400-italic.css'
 import '@fontsource-variable/inter/index.css'
 import './styles/base.css'
 import './styles/home.css'
+import './styles/pages.css'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
+import { Flip } from 'gsap/Flip'
 import { PILOT_SESSION_ID } from '../data/sessions.ts'
 
-gsap.registerPlugin(ScrollTrigger, SplitText)
+gsap.registerPlugin(ScrollTrigger, SplitText, Flip)
 ScrollTrigger.config({ ignoreMobileResize: true })
 
 const root = document.documentElement
@@ -55,26 +57,10 @@ function header() {
     },
   })
 
-  // Lien de navigation actif selon la section visible
-  const links = $$<HTMLAnchorElement>('.main-nav a[data-nav]')
-  const setActive = (id: string) =>
-    links.forEach((a) => (a.dataset.nav === id ? a.setAttribute('aria-current', 'true') : a.removeAttribute('aria-current')))
-  const map: [string, string][] = [
-    ['[data-hero]', 'accueil'],
-    ['#a-propos', 'a-propos'],
-    ['#ateliers', 'ateliers'],
-    ['#agenda', 'agenda'],
-    ['#contact', 'contact'],
-  ]
-  for (const [sel, id] of map) {
-    const target = $(sel)
-    if (!target) continue
-    ScrollTrigger.create({
-      trigger: target,
-      start: 'top 50%',
-      end: 'bottom 50%',
-      onToggle: (self) => self.isActive && setActive(id),
-    })
+  // Lien de navigation de la page courante
+  const page = document.body.dataset.page
+  for (const a of $$<HTMLAnchorElement>('[data-nav]')) {
+    if (a.dataset.nav === page) a.setAttribute('aria-current', 'page')
   }
 }
 
@@ -206,10 +192,11 @@ async function heroIntro() {
     .to(split.words, { yPercent: 0, duration: 1.25, stagger: 0.045 }, 0.42)
     .to(pieces, { autoAlpha: 1, xPercent: 0, yPercent: 0, rotation: 0, scale: 1, duration: 1.6, stagger: 0.07 }, 0.55)
     .to(ins.slice(1), { autoAlpha: 1, y: 0, duration: 1.1, stagger: 0.1 }, 1)
-    .to(em, { '--hl': '100%', duration: 0.9, ease: 'power3.inOut' }, 1.25)
-    .to(ticket, { autoAlpha: 1, y: 0, rotation: 0, duration: 1.2 }, 1.2)
-    .from('.chat-lines i', { scaleX: 0, duration: 0.7, stagger: 0.18, ease: 'power2.out' }, 1.6)
-    .set('[data-hero-frame]', { clearProps: 'clipPath' })
+  if (em) tl.to(em, { '--hl': '100%', duration: 0.9, ease: 'power3.inOut' }, 1.25)
+  if (ticket) tl.to(ticket, { autoAlpha: 1, y: 0, rotation: 0, duration: 1.2 }, 1.2)
+  const lines = $$('.chat-lines i', hero)
+  if (lines.length) tl.from(lines, { scaleX: 0, duration: 0.7, stagger: 0.18, ease: 'power2.out' }, 1.6)
+  tl.set('[data-hero-frame]', { clearProps: 'clipPath' })
 }
 
 /* ——— Titres de section : lignes qui montent ——— */
@@ -245,8 +232,8 @@ function scrollScenes(wide: boolean) {
     })
     tl.to('[data-hero-frame]', { scale: 0.92, borderRadius: 40, ease: 'none' }, 0)
       .to('.hero-content', { y: () => innerHeight * 0.18, autoAlpha: 0.15, ease: 'none' }, 0)
-      .to('.hero-ticket', { yPercent: -60, ease: 'none' }, 0)
       .to('[data-collage]', { scale: 1.12, ease: 'none' }, 0)
+    if ($('.hero-ticket', hero)) tl.to('.hero-ticket', { yPercent: -60, ease: 'none' }, 0)
     for (const p of $$('.piece', hero)) {
       tl.to(p, { y: () => -depth(p) * innerHeight * 0.32, ease: 'none' }, 0)
     }
@@ -466,9 +453,208 @@ function scrollScenes(wide: boolean) {
   }
 }
 
+/* ——— Catalogue : filtres animés (Flip) ——— */
+function filters() {
+  const bar = $('[data-filters]')
+  const catalog = $('[data-catalog]')
+  if (!bar || !catalog) return
+  const buttons = $$<HTMLButtonElement>('[data-filter]', bar)
+  const glider = $('[data-glider]', bar)
+  const cards = $$('[data-kind]', catalog)
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+  const moveGlider = (btn: HTMLElement, animate: boolean) => {
+    if (!glider) return
+    const vars = { x: btn.offsetLeft - 5, width: btn.offsetWidth }
+    if (animate && !reduce()) gsap.to(glider, { ...vars, duration: 0.5, ease: 'expo.out' })
+    else gsap.set(glider, vars)
+  }
+  const current = () => buttons.find((b) => b.classList.contains('is-on')) ?? buttons[0]
+  const apply = (kind: string) => {
+    const state = Flip.getState(cards)
+    for (const c of cards) c.hidden = kind !== 'all' && c.dataset.kind !== kind
+    if (reduce()) return
+    Flip.from(state, {
+      duration: 0.7,
+      ease: 'expo.out',
+      absolute: true,
+      scale: true,
+      onEnter: (els) => gsap.fromTo(els, { autoAlpha: 0, scale: 0.92, y: 30 }, { autoAlpha: 1, scale: 1, y: 0, duration: 0.6, ease: 'expo.out' }),
+      onLeave: (els) => gsap.to(els, { autoAlpha: 0, scale: 0.92, duration: 0.3 }),
+      onComplete: () => ScrollTrigger.refresh(),
+    })
+  }
+  for (const b of buttons) {
+    b.addEventListener('click', () => {
+      for (const o of buttons) {
+        o.classList.toggle('is-on', o === b)
+        o.setAttribute('aria-pressed', String(o === b))
+      }
+      moveGlider(b, true)
+      apply(b.dataset.filter ?? 'all')
+    })
+  }
+  moveGlider(current(), false)
+  fontsReady().then(() => moveGlider(current(), false))
+  addEventListener('resize', () => moveGlider(current(), false))
+}
+
+/* ——— Questions fréquentes : ouverture animée ——— */
+function faq() {
+  for (const item of $$<HTMLDetailsElement>('[data-faq] details')) {
+    const summary = $('summary', item)!
+    const body = $('.faq-body', item)!
+    summary.addEventListener('click', (e) => {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      e.preventDefault()
+      if (item.open) {
+        gsap.to(body, {
+          height: 0,
+          autoAlpha: 0,
+          duration: 0.35,
+          ease: 'power2.inOut',
+          onComplete: () => {
+            item.open = false
+            gsap.set(body, { clearProps: 'all' })
+          },
+        })
+      } else {
+        item.open = true
+        gsap.from(body, { height: 0, autoAlpha: 0, duration: 0.5, ease: 'expo.out', clearProps: 'all' })
+      }
+    })
+  }
+}
+
+/* ——— Calendrier du mois (agenda) ——— */
+function calendar() {
+  for (const el of $$('[data-calendar]')) {
+    const [y, m] = (el.dataset.calendar ?? '').split('-').map(Number)
+    if (!y || !m) continue
+    const on = Number(el.dataset.highlight ?? 0)
+    const first = new Date(Date.UTC(y, m - 1, 1))
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate()
+    const offset = (first.getUTCDay() + 6) % 7 // lundi en premier
+    const month = new Intl.DateTimeFormat('fr-FR', { month: 'long', timeZone: 'UTC' }).format(first)
+    let cells = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d) => `<span class="cal-dow">${d}</span>`).join('')
+    cells += '<span></span>'.repeat(offset)
+    for (let d = 1; d <= days; d++) {
+      const dow = (offset + d - 1) % 7 // 0 = lundi
+      const cls = ['cal-day', dow >= 5 ? 'is-weekend' : '', dow === 0 || dow === 4 ? 'is-slot' : '', d === on ? 'is-on' : '']
+      cells += `<span class="${cls.filter(Boolean).join(' ')}">${d}</span>`
+    }
+    el.innerHTML = `<div class="cal-head"><span class="cal-month">${month}</span><span class="cal-year">${y}</span></div>
+      <div class="cal-grid">${cells}</div>
+      <div class="cal-legend"><span><i></i>Atelier pilote</span><span><i></i>Créneaux habituels</span></div>`
+  }
+}
+
+/* ——— Formulaires : ouverture de la messagerie avec le message pré-rempli ——— */
+function mailtoForms() {
+  const key = new URLSearchParams(location.search).get('sujet')
+  for (const form of $$<HTMLFormElement>('[data-mailto-form]')) {
+    const select = $<HTMLSelectElement>('[data-subject-select]', form)
+    if (select && key) {
+      const opt = Array.from(select.options).find((o) => o.dataset.key === key)
+      if (opt) select.value = opt.value
+    }
+    const status = $('[data-form-status]', form)
+    form.addEventListener('submit', (e) => {
+      e.preventDefault()
+      let firstInvalid: HTMLElement | null = null
+      for (const input of $$<HTMLInputElement | HTMLTextAreaElement>('input, textarea', form)) {
+        const ok = input.checkValidity() && (!input.required || input.value.trim() !== '')
+        input.setAttribute('aria-invalid', String(!ok))
+        if (!ok && !firstInvalid) firstInvalid = input
+      }
+      if (firstInvalid) {
+        firstInvalid.focus()
+        if (status) status.textContent = 'Merci de compléter les champs indiqués.'
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) gsap.fromTo(firstInvalid, { x: -6 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' })
+        return
+      }
+      const data = new FormData(form)
+      const lines: string[] = []
+      for (const [k, v] of data.entries()) if (String(v).trim()) lines.push(`${k} : ${String(v).trim()}`)
+      const subject = `${form.dataset.subject ?? 'Message'}${select ? ` · ${select.value}` : ''}`
+      const href = `mailto:mjagency.officiel@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`
+      location.href = href
+      if (status) {
+        status.textContent = 'Votre messagerie s’ouvre. Rien ne s’affiche ? Écrivez-nous à mjagency.officiel@gmail.com ou appelez le 06 11 71 83 68.'
+        status.classList.add('is-ok')
+      }
+    })
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLElement
+      if (t.getAttribute('aria-invalid') === 'true') t.removeAttribute('aria-invalid')
+    })
+  }
+}
+
+/* ——— Animations des pages intérieures ——— */
+function pageScenes() {
+  // Tracés qui se dessinent au défilement (arbre, carte, étapes)
+  for (const path of $$<SVGPathElement>('path[data-draw]')) {
+    const len = path.getTotalLength()
+    gsap.fromTo(
+      path,
+      { strokeDasharray: len, strokeDashoffset: len },
+      {
+        strokeDashoffset: 0,
+        ease: 'none',
+        scrollTrigger: { trigger: path.closest('section') ?? path, start: 'top 75%', end: 'center 50%', scrub: true },
+      },
+    )
+  }
+  const once = (targets: gsap.TweenTarget, trigger: Element | string, vars: gsap.TweenVars) =>
+    gsap.from(targets, {
+      autoAlpha: 0,
+      duration: 1.1,
+      ease: 'expo.out',
+      ...vars,
+      scrollTrigger: { trigger, start: 'top 85%', once: true },
+    })
+
+  const tree = $('[data-tree]')
+  if (tree) once($$('.tree-node', tree), tree, { x: 60, rotation: 2, stagger: 0.15 })
+  const map = $('[data-map]')
+  if (map) {
+    once(map, map, { y: 80, rotation: -4 })
+    once($$('.map-pin, .map-label', map), map, { scale: 0, transformOrigin: '50% 50%', stagger: 0.06, delay: 0.4, ease: 'back.out(2)' })
+  }
+  const ambition = $('[data-ambition]')
+  if (ambition) {
+    gsap
+      .timeline({ scrollTrigger: { trigger: ambition, start: 'top 85%', end: 'center 50%', scrub: true } })
+      .from('.ambition-paper', { rotation: -10, scale: 0.9, ease: 'none' }, 0)
+      .from('.ambition-inner', { y: 60, rotation: 2, ease: 'none' }, 0)
+  }
+  const catalog = $('[data-catalog]')
+  if (catalog) once($$('.course', catalog), catalog, { y: 70, rotation: (i: number) => (i % 2 ? 2 : -2), stagger: 0.1 })
+  const steps = $('[data-steps]')
+  if (steps) once($$('.step', steps), steps, { y: 50, stagger: 0.14 })
+  const faqList = $('[data-faq]')
+  if (faqList) once($$('.faq-item', faqList), faqList, { y: 30, stagger: 0.07 })
+  const cal = $('[data-calendar]')
+  if (cal) {
+    once(cal, cal, { y: 60, rotation: 6 })
+    once('.infos > div', '.infos', { x: 40, stagger: 0.08 })
+  }
+  for (const form of $$('[data-mailto-form]')) once(form, form, { y: 70, rotation: 1.5 })
+  const cards = $('[data-contact-cards]')
+  if (cards) once($$('.contact-link', cards), cards, { x: -40, stagger: 0.1 })
+  const doc = $('.doc')
+  if (doc) once($$('.doc > *:not(.doc-paper)', doc).slice(0, 4), doc, { y: 24, stagger: 0.08 })
+  const paper = $('.doc-paper')
+  if (paper) gsap.from(paper, { rotation: -30, scale: 0.6, autoAlpha: 0, duration: 1.4, ease: 'expo.out', delay: 0.2 })
+}
+
 /* ——— Démarrage ——— */
 header()
 checkout()
+filters()
+faq()
+calendar()
+mailtoForms()
 
 const mm = gsap.matchMedia()
 mm.add('(prefers-reduced-motion: no-preference)', () => {
@@ -490,7 +676,10 @@ mm.add(
     const { wide, motion } = ctx.conditions as { wide: boolean; motion: boolean }
     if (!motion) return
     fontsReady().then(() => {
-      ctx.add(() => scrollScenes(wide))
+      ctx.add(() => {
+        scrollScenes(wide)
+        pageScenes()
+      })
       ScrollTrigger.sort()
       ScrollTrigger.refresh()
       // Arrivée sur une ancre (#agenda, retour de paiement #reserver…) : les sections épinglées

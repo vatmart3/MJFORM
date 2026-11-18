@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Agenda &amp; réservation · ateliers IA à Sète · MJ FORM</title>
+    <meta
+      name="description"
+      content="Prochain atelier : vendredi 4 décembre 2026 en soirée à Sète, atelier pilote « Spécial fêtes » à 49 €. Créneaux habituels : vendredi après-midi ou soir, lundi soir dès 19 h."
+    />
+    <link rel="canonical" href="%SITE_URL%/agenda/" />
+    <meta name="theme-color" content="#fff3e7" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="MJ FORM" />
+    <meta property="og:title" content="Agenda · MJ FORM" />
+    <meta property="og:description" content="Atelier pilote « Spécial fêtes » le vendredi 4 décembre 2026 à Sète, 49 €." />
+    <meta property="og:url" content="%SITE_URL%/agenda/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- @include head-anim -->
+    <script type="module" src="/src/site/main.ts"></script>
+  </head>
+  <body data-page="agenda">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <!-- @include header -->
+
+    <main id="contenu">
+      <section class="hero hero-page" aria-labelledby="page-title" data-hero>
+        <div class="hero-frame" data-hero-frame>
+          <div class="hero-texture" aria-hidden="true"></div>
+          <div class="hero-collage" aria-hidden="true" data-collage>
+            <figure class="piece pp-1" data-depth="0.7">
+              <img src="/paper/marigold-a.svg" alt="" width="460" height="340" />
+              <span class="tape tape-tl"></span>
+              <span class="piece-label">Vendredi</span>
+              <span class="piece-sub">après-midi ou soir</span>
+            </figure>
+            <figure class="piece pp-2" data-depth="1.2">
+              <img src="/paper/mint-b.svg" alt="" width="300" height="420" />
+              <span class="piece-note">Petit<br />groupe,<br />à Sète.</span>
+            </figure>
+            <figure class="piece pp-3" data-depth="0.9">
+              <img src="/paper/sky-a.svg" alt="" width="480" height="320" />
+              <span class="piece-label">Lundi</span>
+              <span class="piece-sub">le soir, dès 19&nbsp;h</span>
+            </figure>
+          </div>
+          <div class="container hero-content">
+            <p class="eyebrow hero-in"><span class="dot-live"></span>Réservations ouvertes</p>
+            <h1 class="hero-title" id="page-title">Réservez votre place, <em>on s’occupe du reste.</em></h1>
+            <p class="hero-lead hero-in">
+              Le prochain atelier a lieu le vendredi 4 décembre 2026 en soirée, à Sète. Pour les autres ateliers, choisissez
+              un créneau : on vous recontacte pour fixer la date.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Prochain atelier -->
+      <section class="agenda section" id="prochain" aria-labelledby="agenda-title">
+        <span id="reserver" class="anchor-alias"></span>
+        <div class="container">
+          <header class="section-head">
+            <p class="eyebrow">Prochain atelier</p>
+            <h2 class="h2" id="agenda-title" data-reveal>Le 4 décembre, <em>on prépare les fêtes.</em></h2>
+          </header>
+
+          <article class="event" data-event>
+            <img class="event-paper" src="/paper/marigold-a.svg" alt="" aria-hidden="true" width="460" height="340" />
+            <div class="event-card card">
+              <div class="event-date" aria-hidden="true">
+                <span class="event-dow">Vendredi</span>
+                <span class="event-day">04</span>
+                <span class="event-month">décembre 2026</span>
+              </div>
+              <div class="event-info">
+                <p class="offre-tag"><span class="badge badge-papaya">Atelier pilote</span> en soirée · Sète</p>
+                <h3 class="event-title">Atelier « Spécial fêtes »</h3>
+                <p>
+                  Vos communications, promotions et contenus de décembre, préparés avec l’IA. Vendredi 4 décembre 2026, en
+                  soirée, à Sète, en petit groupe.
+                </p>
+                <div class="event-actions">
+                  <button class="btn btn-pill btn-lg" type="button" data-checkout data-magnetic>Réserver ma place · 49&nbsp;€</button>
+                  <a class="btn btn-ghost btn-lg" href="/contact/?sujet=fetes">Poser une question</a>
+                </div>
+                <p class="event-status" role="status" data-checkout-status></p>
+              </div>
+            </div>
+            <span class="tape tape-event" aria-hidden="true"></span>
+          </article>
+
+          <div class="practical">
+            <div class="calendar card" data-calendar="2026-12" data-highlight="4" aria-hidden="true"></div>
+            <dl class="infos">
+              <div><dt>Date</dt><dd>Vendredi 4 décembre 2026</dd></div>
+              <div><dt>Horaire</dt><dd>En soirée, de 18&nbsp;h&nbsp;30 à 21&nbsp;h&nbsp;30</dd></div>
+              <div><dt>Lieu</dt><dd>Sète · l’adresse exacte vous est envoyée par SMS la veille</dd></div>
+              <div><dt>Format</dt><dd>Présentiel, en petit groupe</dd></div>
+              <div><dt>Tarif</dt><dd>49&nbsp;€ · paiement sécurisé par Stripe</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- Créneaux + demande -->
+      <section class="section creneau" id="creneau" aria-labelledby="creneau-title">
+        <div class="container creneau-grid">
+          <div class="creneau-copy">
+            <p class="eyebrow">Les autres ateliers</p>
+            <h2 class="h2" id="creneau-title" data-reveal>Choisissez un créneau, <em>on fixe la date ensemble.</em></h2>
+            <p class="lead" data-reveal>
+              Les ateliers ont lieu sur rendez-vous, en petit groupe, à Sète. Indiquez l’atelier qui vous intéresse et le
+              créneau qui vous arrange : nous revenons vers vous rapidement.
+            </p>
+            <ul class="slots-list" data-slots>
+              <li class="slot card"><span class="slot-day">Vendredi</span><span>après-midi ou soir</span></li>
+              <li class="slot card"><span class="slot-day">Lundi</span><span>le soir, à partir de 19&nbsp;h</span></li>
+            </ul>
+          </div>
+
+          <form class="form card" data-mailto-form data-subject="Demande de créneau" novalidate>
+            <span class="tape tape-top" aria-hidden="true"></span>
+            <h3 class="form-title">Demander un créneau</h3>
+            <div class="form-row">
+              <div class="field">
+                <label for="c-nom">Nom et prénom</label>
+                <input id="c-nom" name="Nom" type="text" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="c-ent">Entreprise <span class="opt">(facultatif)</span></label>
+                <input id="c-ent" name="Entreprise" type="text" autocomplete="organization" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="c-tel">Téléphone</label>
+                <input id="c-tel" name="Téléphone" type="tel" autocomplete="tel" inputmode="tel" required />
+              </div>
+              <div class="field">
+                <label for="c-mail">E-mail <span class="opt">(facultatif)</span></label>
+                <input id="c-mail" name="E-mail" type="email" autocomplete="email" inputmode="email" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="c-atelier">Atelier souhaité</label>
+              <select id="c-atelier" name="Atelier" data-subject-select>
+                <option value="Atelier découverte" data-key="decouverte">Atelier découverte</option>
+                <option value="Spécial fêtes de fin d’année" data-key="fetes">Spécial fêtes de fin d’année</option>
+                <option value="Maîtriser Claude et les assistants IA" data-key="claude">Maîtriser Claude et les assistants IA</option>
+                <option value="Créer ses propres agents IA" data-key="agents">Créer ses propres agents IA</option>
+                <option value="Concevoir ses propres solutions IA" data-key="solutions">Concevoir ses propres solutions IA</option>
+                <option value="Je ne sais pas encore" data-key="conseil">Je ne sais pas encore, conseillez-moi</option>
+              </select>
+            </div>
+            <fieldset class="field">
+              <legend>Créneau préféré</legend>
+              <div class="choices">
+                <label class="choice"><input type="radio" name="Créneau" value="Vendredi après-midi" checked /><span>Vendredi après-midi</span></label>
+                <label class="choice"><input type="radio" name="Créneau" value="Vendredi soir" /><span>Vendredi soir</span></label>
+                <label class="choice"><input type="radio" name="Créneau" value="Lundi soir (dès 19 h)" /><span>Lundi soir</span></label>
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="c-msg">Message <span class="opt">(facultatif)</span></label>
+              <textarea id="c-msg" name="Message" rows="3"></textarea>
+            </div>
+            <button class="btn btn-pill btn-lg form-submit" type="submit" data-magnetic>Envoyer ma demande</button>
+            <p class="form-note" data-form-status role="status">Votre messagerie s’ouvre avec la demande pré-remplie, il ne reste qu’à l’envoyer.</p>
+          </form>
+        </div>
+      </section>
+
+      <!-- @include cta -->
+    </main>
+
+    <!-- @include footer -->
+  </body>
+</html>

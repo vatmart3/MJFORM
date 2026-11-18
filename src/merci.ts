@@ -37,7 +37,7 @@ if (id) {
         field('live-note')!.hidden = true
         const until = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(s.accessUntil!))
         show('access', `Ouvert dès maintenant, jusqu’au ${until}`)
-        document.querySelector('h1')!.innerHTML = 'C’est ouvert.<br /><span style="color: var(--ink-2)">À vous de jouer.</span>'
+        document.querySelector('h1')!.innerHTML = 'C’est ouvert.<br /><span class="doc-soft">À vous de jouer.</span>'
       } else {
         show('format', 'En présentiel · contenu en ligne inclus')
         show('date', `${s.date} · ${s.hours}`)

@@ -2,6 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <meta name="theme-color" content="#fff3e7" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Réservation confirmée | MJ FORM</title>
     <meta name="description" content="Votre place à l’atelier MJ FORM est réservée." />
@@ -10,14 +11,14 @@
     <meta name="robots" content="noindex" />
     <script type="module" src="/src/merci.ts"></script>
   </head>
-  <body>
-    <header class="nav scrolled">
-      <div class="wrap"><a class="logo" href="/" aria-label="MJ FORM, accueil">MJ<span class="dot">.</span> FORM</a><div class="nav-actions"><a class="btn btn-secondary btn-sm" href="/espace">Se connecter</a><a class="btn btn-primary btn-sm" href="/#reserver">Réserver</a></div></div>
-    </header>
-    <main class="doc">
-      <div class="wrap">
+  <body data-page="legal">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <!-- @include header -->
+    <main id="contenu" class="doc-page">
+      <div class="doc container">
+        <img class="doc-paper" src="/paper/periwinkle-b.svg" alt="" aria-hidden="true" width="280" height="380" />
         <p class="eyebrow">Réservation</p>
-        <h1>C’est réservé.<br /><span style="color: var(--ink-2)">À très vite.</span></h1>
+        <h1 class="doc-title">C’est réservé.<br /><span class="doc-soft">À très vite.</span></h1>
         <p class="lead">Votre paiement est confirmé. Votre reçu arrive par e-mail dans quelques minutes.</p>
         <dl class="recap" id="recap">
           <div data-field="atelier-row" hidden><dt>Atelier</dt><dd data-field="atelier"></dd></div>
@@ -30,15 +31,10 @@
         <p data-field="pack-note" hidden>Les dates des ateliers suivants de votre pack sont fixées ensemble : nous vous appelons dans la semaine.</p>
         <p data-field="espace-note">Votre espace stagiaire est ouvert : vous recevez par e-mail un lien pour vous connecter. Vous y retrouvez les vidéos, supports et prompts de votre atelier.</p>
         <p data-field="live-note">Venez avec votre téléphone chargé et les accès à vos comptes (Google, Instagram, Facebook…). Le café est offert.</p>
-        <p>Une question ? <a href="tel:+33611718368">06 11 71 83 68</a> · <a href="mailto:jeremyvatuonepro@gmail.com">jeremyvatuonepro@gmail.com</a></p>
-        <div class="actions"><a class="btn btn-primary" href="/espace">Accéder à mon espace</a><a class="btn btn-secondary" href="/">Retour à l’accueil</a></div>
+        <p>Une question ? <a href="tel:+33611718368">06 11 71 83 68</a> · <a href="mailto:mjagency.officiel@gmail.com">mjagency.officiel@gmail.com</a></p>
+        <div class="actions"><a class="btn btn-pill" href="/espace">Accéder à mon espace</a><a class="btn btn-ghost" href="/">Retour à l’accueil</a></div>
       </div>
     </main>
-    <footer class="footer">
-      <div class="wrap">
-        <span>MJ FORM · une activité MJ LAB · Sète, Bassin de Thau</span>
-        <nav aria-label="Informations légales"><a href="/mentions-legales/">Mentions légales</a><a href="/cgv/">CGV</a></nav>
-      </div>
-    </footer>
+    <!-- @include footer -->
   </body>
 </html>
