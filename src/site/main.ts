@@ -166,7 +166,7 @@ async function heroIntro() {
 
   const title = $('.hero-title', hero)!
   const em = $('em', title)
-  const split = SplitText.create(title, { aria: 'none', type: 'lines,words', mask: 'lines', linesClass: 'line' })
+  const split = SplitText.create(title, { aria: 'none', type: 'lines,words', mask: 'lines', linesClass: 'split-line' })
   const pieces = $$('.piece', hero)
   const ins = $$('.hero-in', hero)
   const ticket = $('.hero-ticket', hero)
@@ -197,24 +197,23 @@ async function heroIntro() {
   const lines = $$('.chat-lines i', hero)
   if (lines.length) tl.from(lines, { scaleX: 0, duration: 0.7, stagger: 0.18, ease: 'power2.out' }, 1.6)
   tl.set('[data-hero-frame]', { clearProps: 'clipPath' })
+  // Titre rendu à son état d'origine : plus aucun masque qui pourrait rogner les lettres
+  tl.call(() => split.revert())
 }
 
 /* ——— Titres de section : lignes qui montent ——— */
-function revealTitles() {
+async function revealTitles() {
+  await fontsReady()
   for (const el of $$('[data-reveal]')) {
-    SplitText.create(el, {
-      aria: 'none',
-      type: 'lines',
-      mask: 'lines',
-      autoSplit: true,
-      onSplit: (self) =>
-        gsap.from(self.lines, {
-          yPercent: 105,
-          duration: 1.1,
-          stagger: 0.09,
-          ease: 'expo.out',
-          scrollTrigger: { trigger: el, start: 'top 86%', once: true },
-        }),
+    const split = SplitText.create(el, { aria: 'none', type: 'lines', mask: 'lines', linesClass: 'split-line' })
+    gsap.from(split.lines, {
+      yPercent: 105,
+      duration: 1.1,
+      stagger: 0.09,
+      ease: 'expo.out',
+      scrollTrigger: { trigger: el, start: 'top 86%', once: true },
+      // Une fois le titre arrivé, on retire le découpage (aucune lettre rognée, retour à la ligne naturel)
+      onComplete: () => split.revert(),
     })
   }
 }
@@ -444,11 +443,14 @@ function scrollScenes(wide: boolean) {
   const word = $('[data-wordmark]')
   if (word) {
     const split = SplitText.create(word, { aria: 'none', type: 'chars', charsClass: 'char', mask: 'chars' })
+    // Joué une fois à l'apparition : sur téléphone, la page ne défile pas assez pour un effet lié au défilement
     gsap.from(split.chars, {
       yPercent: 100,
-      stagger: 0.05,
-      ease: 'none',
-      scrollTrigger: { trigger: word, start: 'top bottom', end: 'bottom 85%', scrub: true },
+      stagger: 0.06,
+      duration: 1,
+      ease: 'expo.out',
+      scrollTrigger: { trigger: word, start: 'top 95%', once: true },
+      onComplete: () => split.revert(),
     })
   }
 }

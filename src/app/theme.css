@@ -75,3 +75,31 @@ body {
 .login-card .page-title {
   font-size: 36px !important;
 }
+
+/* Tableau de bord : carte « Formation en cours » (lisible sur la toile, jamais plus large que l'écran) */
+.resume {
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+}
+.resume-body {
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .resume {
+    padding: 22px 20px;
+  }
+  .resume .btn {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    min-height: 52px;
+    height: auto;
+    padding-block: 12px;
+  }
+}
+@media (min-width: 900px) {
+  .resume {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}

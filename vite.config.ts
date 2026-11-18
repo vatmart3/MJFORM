@@ -132,8 +132,8 @@ function spaFallback(): Plugin {
 export default defineConfig(() => {
   const siteUrl = SITE_URL
   return {
-    // Espace de test (mode démo) : autorisé partout sauf en production Vercel
-    define: { __ESPACE_DEMO__: JSON.stringify(process.env.VERCEL_ENV !== 'production') },
+    // Espace de test (mode démo) : ouvert partout tant que VITE_ESPACE_DEMO ne vaut pas 0
+    define: { __ESPACE_DEMO__: JSON.stringify(process.env.VITE_ESPACE_DEMO !== '0' || process.env.VERCEL_ENV !== 'production') },
     plugins: [react(), partials(), jsonLd(siteUrl), devApi(), spaFallback()],
     build: {
       target: 'es2020',

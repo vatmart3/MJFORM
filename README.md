@@ -108,13 +108,13 @@ Tant que `VITE_SUPABASE_URL` et `VITE_SUPABASE_ANON_KEY` ne sont pas définis, l
 
 Parcours à essayer : ouvrir `/espace/inscription?ref=CAMILLE-7K2` dans une fenêtre privée, s'inscrire avec un e-mail quelconque (lien simulé), débloquer l'atelier d'initiation à 44,10 € (-10 % filleul), terminer une leçon. Puis se connecter en Camille : son 3e filleul acheteur lui donne -30 %, visible sur « À débloquer ».
 
-Dès que Supabase est configuré, l'espace bascule seul sur la vraie base (`VITE_ESPACE_DEMO=1` force le mode démo).
+L'espace s'ouvre en mode démo par défaut, même en production ; `VITE_ESPACE_DEMO=0` (avec Supabase configuré) active la vraie base.
 
 ## Espace client : configuration Supabase et Stripe
 
 L'espace client (`/espace/`) et l'administration (`/admin/`) fonctionnent en deux modes :
 
-- **Démo** : sans `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (ou avec `VITE_ESPACE_DEMO=1`), tout se passe dans le navigateur avec des comptes de test (`client@demo.mjform.fr` / `demo1234`, `admin@demo.mjform.fr` / `admin1234`). Aucune donnée n'est envoyée, aucun paiement réel.
+- **Démo** (par défaut, tant que `VITE_ESPACE_DEMO` ne vaut pas `0`), tout se passe dans le navigateur avec des comptes de test (`client@demo.mjform.fr` / `demo1234`, `admin@demo.mjform.fr` / `admin1234`). Aucune donnée n'est envoyée, aucun paiement réel.
 - **Production** : Supabase (comptes, formations, progression, parrainage) et Stripe (paiement des formations en ligne).
 
 ### 1. Projet Supabase
@@ -149,7 +149,7 @@ Voir `.env.example` :
 | Variable | Rôle |
 | --- | --- |
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Client Supabase du navigateur (clé publique « anon ») |
-| `VITE_ESPACE_DEMO` | `1` force le mode démo (prévisualisations) |
+| `VITE_ESPACE_DEMO` | `0` active la vraie version (Supabase) ; sinon mode démo |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Fonctions serveur `api/espace/*` et webhook (clé secrète, jamais exposée) |
 | `STRIPE_SECRET_KEY` | Déjà utilisée par les réservations d'ateliers |
 | `STRIPE_WEBHOOK_SECRET` | Vérification de la signature du webhook |

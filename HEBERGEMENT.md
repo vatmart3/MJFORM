@@ -30,7 +30,17 @@ Le nouveau site est entièrement sur la branche **`refonte`** de ce dépôt. Le 
    ajoutez votre nom de domaine dans **Settings → Domains** quand vous êtes prêt.
 
 Sans les variables Stripe, le bouton « Réserver ma place » affiche le téléphone et l’e-mail à la
-place du paiement. Sans Supabase, l’espace stagiaire affiche « Votre espace ouvre bientôt ».
+place du paiement.
+
+### Espace stagiaire : mode test (par défaut)
+
+Pour l’instant, `/espace` s’ouvre **en mode test**, même en production : comptes fictifs, rien n’est
+envoyé ni débité. Sur la page de connexion, touchez « Compte client » puis « Se connecter »
+(`client@demo.mjform.fr` / `demo1234`). L’administration (`/admin`) fonctionne de la même façon
+(`admin@demo.mjform.fr` / `admin1234`).
+
+Pour passer à la vraie version (comptes réels, Supabase), ajoutez la variable `VITE_ESPACE_DEMO=0`
+avec les variables Supabase, puis redéployez.
 
 ## Option 2 : remplacer le site actuel
 

@@ -55,8 +55,8 @@
   padding: calc(140px + env(safe-area-inset-top)) var(--gutter) 110px;
 }
 .hero-page .hero-title {
-  font-size: clamp(40px, 5.8vw, 78px);
-  max-width: 14em;
+  font-size: clamp(34px, 4.6vw, 62px);
+  max-width: 15em;
 }
 .hero-short {
   min-height: min(68vh, 640px);
@@ -1139,5 +1139,50 @@
   }
   .map-water {
     font-size: 26px;
+  }
+}
+
+/* ——— Téléphone : en-têtes de page, collage en bandeau au-dessus du titre ——— */
+@media (max-width: 860px) {
+  .hero-page .hero-content,
+  .hero-short .hero-content {
+    padding: calc(200px + env(safe-area-inset-top)) var(--gutter) 56px;
+  }
+  .pp-1 {
+    width: 132px;
+    left: 10px;
+    top: calc(80px + env(safe-area-inset-top));
+    rotate: -7deg;
+  }
+  .pp-1 .piece-label {
+    font-size: 17px;
+    top: 34%;
+  }
+  .pp-1 .piece-sub {
+    display: none;
+  }
+  .pp-2,
+  .hero-short .pp-2 {
+    width: 96px;
+    left: auto;
+    right: 10px;
+    top: calc(82px + env(safe-area-inset-top));
+    bottom: auto;
+    rotate: 6deg;
+  }
+  .pp-2 .piece-note {
+    font-size: 13px;
+    inset: 18% 12% auto;
+  }
+  .hero-page .hero-title {
+    font-size: clamp(32px, 8.4vw, 42px);
+  }
+}
+@media (max-width: 380px) {
+  .filter-more {
+    display: none;
+  }
+  .filter {
+    padding: 0 14px;
   }
 }
