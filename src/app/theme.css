@@ -103,3 +103,73 @@ body {
     grid-template-columns: 1.4fr 1fr;
   }
 }
+
+/* Barre du haut (téléphone) : bascule admin ↔ stagiaire et déconnexion */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-switch {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff !important;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none !important;
+}
+.topbar-out {
+  width: 36px;
+  height: 36px;
+}
+.topbar-out svg {
+  width: 18px;
+  height: 18px;
+}
+.topbar {
+  background: rgba(255, 250, 244, 0.92);
+}
+/* Barre d'onglets à 6 entrées (admin) */
+.tabbar a {
+  min-width: 0;
+  font-size: 11px;
+}
+
+/* Aperçu de l'espace par un admin */
+.preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fde99b;
+  font-size: 13px;
+}
+.preview-bar strong {
+  color: var(--ink);
+}
+
+/* Connexion : rôle de chaque compte de test */
+.demo-roles {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  color: var(--ink-2);
+}
+.demo-roles strong {
+  color: var(--ink);
+}
+/* Autant de colonnes que d'onglets (5 côté stagiaire, 6 côté admin) */
+.tabbar {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}

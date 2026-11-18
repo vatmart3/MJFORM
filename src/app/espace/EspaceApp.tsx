@@ -13,8 +13,9 @@ import { Parrainage } from './Parrainage'
 import { Profil } from './Profil'
 import { Merci } from './Merci'
 import { DemoStrip } from './common'
-import { NavLink } from 'react-router'
+import { Link, NavLink } from 'react-router'
 import { ShieldCheck } from 'lucide-react'
+import { setPreview } from '../preview'
 
 // Le lecteur (vidéo, PDF) est chargé à la demande
 const Player = lazy(() => import('./Player'))
@@ -33,15 +34,26 @@ export default function EspaceApp() {
     <ClientDataProvider>
       <Shell
         items={ITEMS}
+        switchTo={user?.role === 'admin' ? { to: '/admin', label: 'Admin', onClick: () => setPreview(false) } : undefined}
         footer={
           user?.role === 'admin' ? (
-            <NavLink to="/admin" className="side-link">
+            <NavLink to="/admin" className="side-link" onClick={() => setPreview(false)}>
               <ShieldCheck aria-hidden="true" />
               <span className="label">Administration</span>
             </NavLink>
           ) : null
         }
       >
+        {user?.role === 'admin' ? (
+          <div className="preview-bar" role="note">
+            <span>
+              <strong>Aperçu stagiaire</strong> · vous voyez l’espace comme vos clients le voient.
+            </span>
+            <Link to="/admin" className="linkish small" onClick={() => setPreview(false)}>
+              Retour à l’administration
+            </Link>
+          </div>
+        ) : null}
         <DemoStrip />
         <Routes>
           <Route index element={<Dashboard />} />

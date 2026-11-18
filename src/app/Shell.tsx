@@ -18,7 +18,24 @@ export interface NavItem {
 
 const COLLAPSE_KEY = 'mjform-side-collapsed'
 
-export function Shell({ items, children, footer }: { items: NavItem[]; children: ReactNode; footer?: ReactNode }) {
+/** Lien vers l'autre espace (admin ↔ stagiaire), affiché aussi sur téléphone */
+export interface SwitchLink {
+  to: string
+  label: string
+  onClick?: () => void
+}
+
+export function Shell({
+  items,
+  children,
+  footer,
+  switchTo,
+}: {
+  items: NavItem[]
+  children: ReactNode
+  footer?: ReactNode
+  switchTo?: SwitchLink
+}) {
   const { user } = useSession()
   const backend = useBackend()
   const location = useLocation()
@@ -92,7 +109,17 @@ export function Shell({ items, children, footer }: { items: NavItem[]; children:
         <a className="logo" href="/" aria-label="MJ FORM, retour au site" style={{ fontSize: 19 }}>
           MJ<span className="dot">.</span> FORM
         </a>
-        <Avatar name={name} url={user?.avatarUrl} size={32} />
+        <div className="topbar-actions">
+          {switchTo ? (
+            <NavLink to={switchTo.to} className="topbar-switch" onClick={switchTo.onClick}>
+              {switchTo.label}
+            </NavLink>
+          ) : null}
+          <button type="button" className="icon-btn topbar-out" onClick={() => backend.signOut()} aria-label="Se déconnecter">
+            <LogOut aria-hidden="true" />
+          </button>
+          <Avatar name={name} url={user?.avatarUrl} size={32} />
+        </div>
       </header>
 
       <main id="contenu" className="main">
@@ -103,7 +130,7 @@ export function Shell({ items, children, footer }: { items: NavItem[]; children:
       </main>
 
       <nav className="tabbar" aria-label="Navigation">
-        {items.slice(0, 5).map((it) => (
+        {items.slice(0, 6).map((it) => (
           <NavLink key={it.to} to={it.to} end={it.end}>
             <it.icon aria-hidden="true" />
             {it.short ?? it.label}

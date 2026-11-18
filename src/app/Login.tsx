@@ -129,6 +129,14 @@ export function Login({ area }: { area: 'espace' | 'admin' }) {
             <p className="small" style={{ margin: '0 0 10px' }}>
               <strong>Espace de test.</strong> Données fictives, rien n’est envoyé ni débité.
             </p>
+            <ul className="demo-roles small">
+              <li>
+                <strong>Compte client</strong> : l’espace d’un stagiaire (ses formations, sa progression, le parrainage).
+              </li>
+              <li>
+                <strong>Compte admin</strong> : le back-office de MJ FORM (statistiques, formations, clients, ateliers, réglages).
+              </li>
+            </ul>
             <div className="row wrap" style={{ gap: 8 }}>
               <Button size="sm" variant="ghost" onClick={() => fill('client')}>
                 Compte client

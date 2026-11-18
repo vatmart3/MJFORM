@@ -15,6 +15,7 @@ import { Skeleton } from './ui/kit'
 import { Login } from './Login'
 import { espaceOpen } from './data'
 import { CONTACT } from '../config'
+import { previewAllowed } from './preview'
 
 const EspaceApp = lazy(() => import('./espace/EspaceApp'))
 const AdminApp = lazy(() => import('./admin/AdminApp'))
@@ -66,6 +67,8 @@ function GateOpen({ area }: { area: 'espace' | 'admin' }) {
   if (loading) return <Loading />
   if (!user) return <Login area={area} />
   if (area === 'admin' && user.role !== 'admin') return <Navigate to="/espace" replace />
+  // Compte admin sur /espace : direction l'administration (sauf aperçu demandé)
+  if (area === 'espace' && user.role === 'admin' && !previewAllowed()) return <Navigate to="/admin" replace />
   return <Suspense fallback={<Loading />}>{area === 'admin' ? <AdminApp /> : <EspaceApp />}</Suspense>
 }
 
